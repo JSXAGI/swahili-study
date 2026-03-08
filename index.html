@@ -1,944 +1,1008 @@
 <!doctype html>
 <meta name="google" content="notranslate">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3-Language Learning App</title>
-  <style>
-    :root {
-      --bg-color: #fef3c7;
-      --surface-color: #ffffff;
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>スワヒリ語学習</title>
+   <style>
+      :root {
+      /* 背景画像の指定（GitHubのRaw URL） */
+      --bg-image: url('https://raw.githubusercontent.com/JSXAGI/swahili-study/main/swahili.jpg');
+      --bg-color: #fef3c7; 
+      /* カードの透明度：0.8くらいにすると背景が見えて、かつ文字も読めます */
+      --surface-color: rgba(255, 255, 255, 0.8); 
       --text-color: #1e293b;
       --primary-color: #f59e0b;
       --secondary-color: #8b5cf6;
       --accent-color: #10b981;
       --header-height: 100px;
-    }
-    * { box-sizing: border-box; font-family: 'Segoe UI', Meiryo, sans-serif; }
-    body, html { margin: 0; padding: 40px; height: 100%; background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
-
-    .app-header {
+      }
+      body, html { 
+      margin: 0; 
+      padding: 0; /* paddingを0にして、container側で調整します */
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      background-image: var(--bg-image);
+      background-size: cover;
+      background-position: left 20% center !important;
+      background-attachment: fixed; /* 背景を固定 */
+      background-repeat: no-repeat;
+      color: var(--text-color); 
+      overflow-x: hidden; 
+      }
+      /* ★ポイント2：コンテンツを中央に寄せ、最大幅を制限して左右に背景を見せる */
+      .container {
+      max-width: 600px; /* 横幅を少し狭くして背景が見える面積を増やします */
+      margin: 0 auto;
+      padding: calc(var(--header-height) + 40px) 20px 100px; /* 上下に大きな余白 */
+      }
+      /* ★ポイント3：カードのデザインを「背景を活かす」ものに変更 */
+      .card {
+      background: var(--surface-color) !important;
+      backdrop-filter: blur(8px); /* 背景をボカすことで、透けていても文字が読めます */
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4); /* 白い細い枠線で高級感を出す */
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      padding: 20px;
+      }
+      /* ボタンも少し透けさせるとおしゃれです */
+      .btn-speak {
+      background: rgba(245, 158, 11, 0.8) !important;
+      }
+      .app-header {
       position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
       background-color: var(--primary-color); display: flex; align-items: center; padding: 0 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1000;
-    }
-    .home-link {
+      }
+      .home-link {
       background: white; color: var(--primary-color); padding: 10px 20px; border-radius: 50px;
       font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    }
-
-    .main-content { margin-top: calc(var(--header-height) + 20px); padding: 20px; max-width: 800px; margin: auto; }
-    .card { background: var(--surface-color); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid #fff; margin-bottom: 20px; }
-    
-    .level-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-    .btn-lvl { padding: 12px; border-radius: 12px; border: 3px solid #cbd5e1; font-weight: bold; cursor: pointer; background: #f1f5f9; }
-    .btn-lvl.active { border-color: var(--primary-color); background: white; color: var(--primary-color); transform: scale(1.05); }
-
-    .btn { cursor: pointer; border: none; border-radius: 12px; padding: 15px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
-    .btn-primary { background-color: var(--primary-color); color: white; width: 100%; }
-    
-    .lang-row { background: #f8fafc; padding: 10px 15px; border-radius: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
-    .lang-label { font-size: 0.75rem; color: #64748b; font-weight: bold; }
-    .lang-text { font-size: 1.6rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-    /* スピーカーボタンの押しやすさを少し向上（安定版） */
-.btn-speak {
-  background: #e2e8f0; 
-  border: none; 
-  padding: 12px 16px !important; /* 少し広げる */
-  border-radius: 8px; 
-  cursor: pointer; 
-  font-size: 1.4rem !important; /* 1.2から1.4へ微増 */
-}
-    
-    .hidden { display: none; }
-    .text-center { text-align: center; }
-    .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; background: var(--secondary-color); color: white; margin: 2px; display: inline-block; }
-	
-	/* --- アクセシビリティ強化：マウスが見えやすい工夫 --- */
-
-/* 1. ボタンにマウスが乗った時に、劇的に色を変えて大きくする */
-.btn:hover, .btn-speak:hover {
-  background-color: #ff9800 !important; /* 目立つオレンジ色 */
-  color: white !important;              /* 文字を白くしてクッキリ */
-  transform: scale(1.15);              /* ボタンを1.15倍に拡大 */
-  box-shadow: 0 0 25px rgba(255, 152, 0, 0.8); /* オレンジ色の光を放つ */
-  z-index: 10;                         /* 他の要素より前に出す */
-  transition: all 0.2s ease-in-out;    /* 動きを滑らかに */
-}
-
-/* 2. マウスカーソルを常に「指差しマーク」にする（見つけやすくするため） */
-body {
-  cursor: pointer; 
-}
-
-/* 3. 単語や文法の文字サイズを少しだけ大きくして、読みやすくする */
-.lang-text {
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-/* --- 追加のアクセシビリティ改善：コントラストとボタン強化 --- */
-
-/* 1. 【単語学習】下の「←」「Next」ボタンを巨大化してクッキリさせる */
-#vocabulary-view .btn {
-  font-size: 1.6rem !important; /* 矢印と文字を大きく */
-  font-weight: 800 !important; /* 極太にする */
-  padding: 20px 10px !important;
-  border: 3px solid #64748b !important; /* 濃いグレーの枠線で存在感を出す */
-  background-color: #ffffff !important; /* 背景を白にしてコントラストを上げる */
-  color: #1e293b !important;
-}
-
-/* 3. 【文法学習】英語部分の読みやすさを改善 */
-[id^="g-en-"] {
-  font-family: 'Verdana', 'Arial', sans-serif !important;
-  font-weight: 700 !important; /* 太字に */
-  color: #0f172a !important;   /* 真っ黒に近い紺 */
-  display: inline-block;
-  margin-left: 5px;
-}
-
-/* 4. 文法カード内の説明文（日本語）を読みやすく */
-.card div[style*="color: #444"], 
-.card span[style*="color: #666"] {
-  color: #1e293b !important; /* 文字色を濃く */
-  font-size: 1.1rem !important; /* 少し大きく */
-  line-height: 1.6 !important; /* 行間を広げて読みやすく */
-}
-
-/* 5. ボディの背景を少しだけ落ち着かせて眩しさを抑える（任意） */
-body {
-  background-color: #fffbeb !important; /* 柔らかいクリーム色（#fef3c7より少し白に近い） */
-}
-/* --- アクセシビリティ最終調整：コントラストと巨大ボタン --- */
-
-/* 1. 【単語学習】ボタンを「見やすく、かつ、うるさくない」デザインに改善 */
-#vocabulary-view .btn {
-  font-size: 1.3rem !important;  /* 少しサイズを落とす */
-  font-weight: 700 !important;   /* 適度な太字 */
-  padding: 12px 18px !important;
-  border: 2px solid #94a3b8 !important; /* 枠線を細く、色をマイルドに */
-  background-color: rgba(255, 255, 255, 0.9) !important; /* わずかに透明感 */
-  color: #334155 !important;    /* 落ち着いた濃いグレー */
-  min-width: 150px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 影を柔らかく */
-  letter-spacing: 1px;
-}
-
-/* マウスが乗った時だけ、元気に反応するようにする */
-#vocabulary-view .btn:hover {
-  background-color: #f59e0b !important; /* 乗った時だけオレンジに */
-  color: white !important;
-  border-color: #f59e0b !important;
-}
-
-/* 2. 【文法学習】スワヒリ語（メイン）をシャープで見やすく調整 */
-[id^="g-sw-"] {
-  color: #9a3412 !important;    /* 視認性の高い濃い色 */
-  font-size: 1.5rem !important; /* ほどよい大きさに微調整 */
-  font-weight: 600 !important;  /* ★太さを抑えて文字の潰れを防止 */
-  letter-spacing: 0.05em !important; /* ★文字の間隔を広げてクッキリさせる */
-  display: block;
-  line-height: 1.4;
-  margin: 5px 0;
-}
-
-/* 3. 【文法学習】英語（米語）をクッキリした紺色に */
-[id^="g-en-"] {
-  font-family: 'Verdana', sans-serif !important;
-  font-weight: 700 !important;
-  color: #1e3a8a !important;    /* 濃い青 */
-}
-
-/* 4. 【文法学習】スワヒリ語の「解説文（日本語）」を真っ黒にして読みやすく */
-.card span[style*="color: #666"],
-.card div[style*="margin-top: 10px"] span {
-  color: #000000 !important;    /* 最高のコントラスト（黒） */
-  font-size: 1.2rem !important; /* 文字サイズをアップ */
-  font-weight: 500 !important;
-  line-height: 1.6 !important;
-}
-/* --- 文法カードのタイトル（「基本の挨拶」など）をクッキリさせる --- */
-
-/* タイトル部分の透明度をなくし、背景色をつけて目立たせる */
-.card div[style*="font-size: 0.8rem"] {
-  font-size: 1.1rem !important;    /* 文字を大きく */
-  color: #ffffff !important;       /* 文字は白 */
-  background-color: #8b5cf6 !important; /* 背景を紫（セカンダリーカラー）に */
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 8px;
-  opacity: 1 !important;           /* 透明度を解除してハッキリ */
-  margin-bottom: 12px !important;
-  font-weight: bold !important;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-/* --- スマホ専用：デザイン修正（原本コピー用） --- */
-@media screen and (max-width: 600px) {
-    /* 1. 画面全体の余白を削る（PC用の40pxが広すぎたため） */
-    body, html { padding: 0 !important; }
-    .main-content { padding: 10px 5px !important; margin-top: 80px !important; }
-
-    /* 2. ヘッダーの「終了方法」ボックスをスマホでは完全に隠す */
-    .app-header div[style*="width: 650px"] {
-        display: none !important;
-    }
-
-    /* 3. 白いカードの固定高さを解除（これで重なりが消えます） */
-    .card {
-        width: 95% !important;
-        height: auto !important;
-        min-height: auto !important;
-        padding: 20px 10px !important;
-        margin: 10px auto !important;
-        display: block !important;
-    }
-
-    /* 4. レベル選択（初級・中級・上級）を横長の大きなボタンにして並べる */
-    .level-selector {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-        height: auto !important;
-        writing-mode: horizontal-tb !important;
-    }
-
-    .btn-lvl {
-        width: 100% !important;
-        height: 75px !important; /* 押しやすい高さ */
-        min-height: 75px !important;
-        writing-mode: horizontal-tb !important;
-        font-size: 1.25rem !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 12px !important;
-        position: static !important; /* 重なり防止 */
-        transform: none !important;
-        margin: 0 !important;
-    }
-
-    /* 5. 下の「単語・文法」ボタンを横並びで大きく */
-    .activity-select {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 10px !important;
-        width: 100% !important;
-    }
-
-    .btn-act {
-        width: 48% !important;
-        height: 120px !important;
-        font-size: 1.1rem !important;
-    }
-
-    /* 6. おまじない：タップ時の青い影と枠を消す */
-    button, .audio-btn, .nav-btn {
-        -webkit-tap-highlight-color: transparent;
-        outline: none;
-    }
-
-    /* 7. 中学生向けの洗練された文字サイズ調整 */
-    .display-word, .kiswahili-text {
-        font-size: 1.3rem !important;
-        line-height: 1.3 !important;
-        color: #5d4037 !important;
-    }
-
-    .language-label {
-        font-size: 0.7rem !important;
-        color: #999 !important;
-        margin-bottom: 2px !important;
-    }
-} /* ← ここで600px以下の設定を閉じます */
-	/* ここから下を既存の style の最後に追加してください */
-
-@media screen and (max-width: 480px) {
-    /* スマホ版だけの特別な設定 */
-    
-    body {
-        padding: 10px; /* 画面端の余白を少し詰める */
-        background-color: #fcfaf5; /* 優しい色に */
-    }
-
-    /* 文字を全体的に少し小さく、上品に */
-    h2, .level-select-title {
-        font-size: 1.1rem !important;
-        margin-bottom: 15px !important;
-    }
-
-    /* 各カードの調整 */
-    #words-page .card, #grammar-page .card, .level-card {
-        padding: 18px !important;
-        border-radius: 15px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-    }
-
-    /* 単語・例文の文字サイズを「中学生向け」に微調整 */
-    .display-word, .kiswahili-text {
-        font-size: 1.3rem !important; /* 少し小さく */
-        line-height: 1.3 !important;
-        color: #5d4037 !important; /* 濃い茶色で知的に */
-    }
-
-    /* ラベル（English, 日本語など）を控えめに */
-    .language-label {
-        font-size: 0.7rem !important;
-        color: #999 !important;
-        margin-bottom: 2px !important;
-    }
-
-    /* ボタン類をスッキリさせる */
-    .btn, .nav-btn {
-        padding: 8px 15px !important;
-        font-size: 0.9rem !important;
-        border-radius: 8px !important;
-    }
-
-    /* スピーカーアイコンのサイズ調整 */
-    .audio-icon {
-        width: 32px !important;
-        height: 32px !important;
-    }
-}
-
-/* 追加ここまで */
-  </style>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      }
+      .main-content { margin-top: calc(var(--header-height) + 20px); padding: 20px; max-width: 800px; margin: auto; }
+      .card { background: var(--surface-color); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid #fff; margin-bottom: 20px; }
+      .level-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+      .btn-lvl { padding: 12px; border-radius: 12px; border: 3px solid #cbd5e1; font-weight: bold; cursor: pointer; background: #f1f5f9; }
+      .btn-lvl.active { border-color: var(--primary-color); background: white; color: var(--primary-color); transform: scale(1.05); }
+      .btn { cursor: pointer; border: none; border-radius: 12px; padding: 15px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
+      .btn-primary { background-color: var(--primary-color); color: white; width: 100%; }
+      .lang-row { background: #f8fafc; padding: 10px 15px; border-radius: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
+      .lang-label { font-size: 0.75rem; color: #64748b; font-weight: bold; }
+      .lang-text { font-size: 1.6rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+      /* スピーカーボタンの押しやすさを少し向上（安定版） */
+      .btn-speak {
+      background: #e2e8f0; 
+      border: none; 
+      padding: 12px 16px !important; /* 少し広げる */
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-size: 1.4rem !important; /* 1.2から1.4へ微増 */
+      }
+      .hidden { display: none; }
+      .text-center { text-align: center; }
+      .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; background: var(--secondary-color); color: white; margin: 2px; display: inline-block; }
+      /* --- アクセシビリティ強化：マウスが見えやすい工夫 --- */
+      /* 1. ボタンにマウスが乗った時に、劇的に色を変えて大きくする */
+      .btn:hover, .btn-speak:hover {
+      background-color: #ff9800 !important; /* 目立つオレンジ色 */
+      color: white !important;              /* 文字を白くしてクッキリ */
+      transform: scale(1.15);              /* ボタンを1.15倍に拡大 */
+      box-shadow: 0 0 25px rgba(255, 152, 0, 0.8); /* オレンジ色の光を放つ */
+      z-index: 10;                         /* 他の要素より前に出す */
+      transition: all 0.2s ease-in-out;    /* 動きを滑らかに */
+      }
+      /* 2. マウスカーソルを常に「指差しマーク」にする（見つけやすくするため） */
+      body {
+      cursor: pointer; 
+      }
+      /* 3. 単語や文法の文字サイズを少しだけ大きくして、読みやすくする */
+      .lang-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      }
+      /* --- 追加のアクセシビリティ改善：コントラストとボタン強化 --- */
+      /* 1. 【単語学習】下の「←」「Next」ボタンを巨大化してクッキリさせる */
+      #vocabulary-view .btn {
+      font-size: 1.6rem !important; /* 矢印と文字を大きく */
+      font-weight: 800 !important; /* 極太にする */
+      padding: 20px 10px !important;
+      border: 3px solid #64748b !important; /* 濃いグレーの枠線で存在感を出す */
+      background-color: #ffffff !important; /* 背景を白にしてコントラストを上げる */
+      color: #1e293b !important;
+      }
+      /* 3. 【文法学習】英語部分の読みやすさを改善 */
+      [id^="g-en-"] {
+      font-family: 'Verdana', 'Arial', sans-serif !important;
+      font-weight: 700 !important; /* 太字に */
+      color: #0f172a !important;   /* 真っ黒に近い紺 */
+      display: inline-block;
+      margin-left: 5px;
+      }
+      /* 4. 文法カード内の説明文（日本語）を読みやすく */
+      .card div[style*="color: #444"], 
+      .card span[style*="color: #666"] {
+      color: #1e293b !important; /* 文字色を濃く */
+      font-size: 1.1rem !important; /* 少し大きく */
+      line-height: 1.6 !important; /* 行間を広げて読みやすく */
+      }
+      /* 5. ボディの背景を少しだけ落ち着かせて眩しさを抑える（任意） */
+      body {
+      background-color: #fffbeb !important; /* 柔らかいクリーム色（#fef3c7より少し白に近い） */
+      }
+      /* --- アクセシビリティ最終調整：コントラストと巨大ボタン --- */
+      /* 1. 【単語学習】ボタンを「見やすく、かつ、うるさくない」デザインに改善 */
+      #vocabulary-view .btn {
+      font-size: 1.3rem !important;  /* 少しサイズを落とす */
+      font-weight: 700 !important;   /* 適度な太字 */
+      padding: 12px 18px !important;
+      border: 2px solid #94a3b8 !important; /* 枠線を細く、色をマイルドに */
+      background-color: rgba(255, 255, 255, 0.9) !important; /* わずかに透明感 */
+      color: #334155 !important;    /* 落ち着いた濃いグレー */
+      min-width: 150px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 影を柔らかく */
+      letter-spacing: 1px;
+      }
+      /* マウスが乗った時だけ、元気に反応するようにする */
+      #vocabulary-view .btn:hover {
+      background-color: #f59e0b !important; /* 乗った時だけオレンジに */
+      color: white !important;
+      border-color: #f59e0b !important;
+      }
+      /* 2. 【文法学習】スワヒリ語（メイン）をシャープで見やすく調整 */
+      [id^="g-sw-"] {
+      color: #9a3412 !important;    /* 視認性の高い濃い色 */
+      font-size: 1.5rem !important; /* ほどよい大きさに微調整 */
+      font-weight: 600 !important;  /* ★太さを抑えて文字の潰れを防止 */
+      letter-spacing: 0.05em !important; /* ★文字の間隔を広げてクッキリさせる */
+      display: block;
+      line-height: 1.4;
+      margin: 5px 0;
+      }
+      /* 3. 【文法学習】英語（米語）をクッキリした紺色に */
+      [id^="g-en-"] {
+      font-family: 'Verdana', sans-serif !important;
+      font-weight: 700 !important;
+      color: #1e3a8a !important;    /* 濃い青 */
+      }
+      /* 4. 【文法学習】スワヒリ語の「解説文（日本語）」を真っ黒にして読みやすく */
+      .card span[style*="color: #666"],
+      .card div[style*="margin-top: 10px"] span {
+      color: #000000 !important;    /* 最高のコントラスト（黒） */
+      font-size: 1.2rem !important; /* 文字サイズをアップ */
+      font-weight: 500 !important;
+      line-height: 1.6 !important;
+      }
+      /* --- 文法カードのタイトル（「基本の挨拶」など）をクッキリさせる --- */
+      /* タイトル部分の透明度をなくし、背景色をつけて目立たせる */
+      .card div[style*="font-size: 0.8rem"] {
+      font-size: 1.1rem !important;    /* 文字を大きく */
+      color: #ffffff !important;       /* 文字は白 */
+      background-color: #8b5cf6 !important; /* 背景を紫（セカンダリーカラー）に */
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 8px;
+      opacity: 1 !important;           /* 透明度を解除してハッキリ */
+      margin-bottom: 12px !important;
+      font-weight: bold !important;
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      }
+      /* --- スマホ専用：デザイン修正（原本コピー用） --- */
+      @media screen and (max-width: 600px) {
+      /* 1. 画面全体の余白を削る（PC用の40pxが広すぎたため） */
+      body, html { padding: 0 !important; }
+      .main-content { padding: 10px 5px !important; margin-top: 80px !important; }
+      /* 2. ヘッダーの「終了方法」ボックスをスマホでは完全に隠す */
+      .app-header div[style*="width: 650px"] {
+      display: none !important;
+      }
+      /* 3. 白いカードの固定高さを解除（これで重なりが消えます） */
+      .card {
+      width: 95% !important;
+      height: auto !important;
+      min-height: auto !important;
+      padding: 20px 10px !important;
+      margin: 10px auto !important;
+      display: block !important;
+      }
+      /* 4. レベル選択（初級・中級・上級）を横長の大きなボタンにして並べる */
+      .level-selector {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      height: auto !important;
+      writing-mode: horizontal-tb !important;
+      }
+      .btn-lvl {
+      width: 100% !important;
+      height: 75px !important; /* 押しやすい高さ */
+      min-height: 75px !important;
+      writing-mode: horizontal-tb !important;
+      font-size: 1.25rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 12px !important;
+      position: static !important; /* 重なり防止 */
+      transform: none !important;
+      margin: 0 !important;
+      }
+      /* 5. 下の「単語・文法」ボタンを横並びで大きく */
+      .activity-select {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 10px !important;
+      width: 100% !important;
+      }
+      .btn-act {
+      width: 48% !important;
+      height: 120px !important;
+      font-size: 1.1rem !important;
+      }
+      /* 6. おまじない：タップ時の青い影と枠を消す */
+      button, .audio-btn, .nav-btn {
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      }
+      /* 7. 中学生向けの洗練された文字サイズ調整 */
+      .display-word, .kiswahili-text {
+      font-size: 1.3rem !important;
+      line-height: 1.3 !important;
+      color: #5d4037 !important;
+      }
+      .language-label {
+      font-size: 0.7rem !important;
+      color: #999 !important;
+      margin-bottom: 2px !important;
+      }
+      } /* ← ここで600px以下の設定を閉じます */
+      /* ここから下を既存の style の最後に追加してください */
+      @media screen and (max-width: 480px) {
+      /* スマホ版だけの特別な設定 */
+      body {
+      padding: 10px; /* 画面端の余白を少し詰める */
+      background-color: #fcfaf5; /* 優しい色に */
+      }
+      /* 文字を全体的に少し小さく、上品に */
+      h2, .level-select-title {
+      font-size: 1.1rem !important;
+      margin-bottom: 15px !important;
+      }
+      /* 各カードの調整 */
+      #words-page .card, #grammar-page .card, .level-card {
+      padding: 18px !important;
+      border-radius: 15px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+      }
+      /* 単語・例文の文字サイズを「中学生向け」に微調整 */
+      .display-word, .kiswahili-text {
+      font-size: 1.3rem !important; /* 少し小さく */
+      line-height: 1.3 !important;
+      color: #5d4037 !important; /* 濃い茶色で知的に */
+      }
+      /* ラベル（English, 日本語など）を控えめに */
+      .language-label {
+      font-size: 0.7rem !important;
+      color: #999 !important;
+      margin-bottom: 2px !important;
+      }
+      /* ボタン類をスッキリさせる */
+      .btn, .nav-btn {
+      padding: 8px 15px !important;
+      font-size: 0.9rem !important;
+      border-radius: 8px !important;
+      }
+      /* スピーカーアイコンのサイズ調整 */
+      .audio-icon {
+      width: 32px !important;
+      height: 32px !important;
+      }
+      }
+      /* --- ここから最新の修正版 --- */
+      /* 1. カードの透明度を極限まで上げる（0.4 = 40%の白） */
+      :root {
+      --surface-color: rgba(255, 255, 255, 0.4) !important; 
+      }
+      /* 2. 全てのカードを「すりガラス」風に透けさせる */
+      .card {
+      background: var(--surface-color) !important;
+      backdrop-filter: blur(15px) !important; /* ボカシを10→15に強化 */
+      border: 1px solid rgba(255, 255, 255, 0.2) !important; /* 枠も細く薄く */
+      }
+      /* 3. ナビゲーション全体の再調整 */
+      .top-navigation {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 75px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 10000;
+      pointer-events: none;
+      }
+      /* 4. ホームボタン：左端から少し離しつつ重ならない位置(20px) */
+      .home-btn {
+      pointer-events: auto;
+      position: absolute !important;
+      left: 20px !important; /* 50だと寄りすぎなので20に */
+      top: 15px !important;
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      color: var(--primary-color) !important;
+      padding: 3px 3px !important;
+      border-radius: 6px !important; /* さらに少しカチッとした角 */
+      font-weight: bold !important;
+      font-size: 1.8rem !important;
+      text-decoration: none !important;
+      border: 2px solid var(--primary-color) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+      }
+      /* 5. タイトル：白抜きデザインを維持 */
+      .app-title {
+      pointer-events: auto;
+      margin: 0 !important;
+      font-size: 1.6rem !important;
+      color: #ffffff !important;
+      text-shadow: 
+      2px 2px 0px #d97706, 
+      2px -2px 0px #d97706,
+      -2px 2px 0px #d97706,
+      -2px -2px 0px #d97706,
+      0px 0px 12px rgba(0,0,0,0.9);
+      letter-spacing: 1px !important;
+      }
+      /* コンテンツの開始位置を微調整 */
+      .main-content {
+      margin-top: 80px !important; 
+      }
+      /* --- ここまで最新の修正版 --- */
+      /* --- 単語学習の余白だけを削る（他には影響しません） --- */
+      #vocabulary-view .card {
+      padding: 10px 15px !important;
+      margin-bottom: 8px !important;
+      }
+      #vocabulary-view .lang-row {
+      margin-bottom: 4px !important;
+      padding: 4px 10px !important;
+      }
+      #vocabulary-view .lang-text {
+      font-size: 1.1rem !important; /* 文字を少しだけ小さく */
+      }
+   </style>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
-
 <body>
-
-  <header class="app-header">
-    <button class="home-link" onclick="showView('home')">
-      🏠 Home
-    </button>
-    
-    <div style="flex-grow: 1; text-align: center; color: white; font-weight: bold; font-size: 1.2rem; margin-right: 15px;" id="mode-title">Learning App</div>
-  </header>
-
-  <main class="main-content">
-    <div id="home-view">
-      <div class="card text-center">
-        <h2>1. Level / レベル選択</h2>
-        <div class="level-selector">
-          <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級<br>小3~</button>
-          <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級<br>中学</button>
-          <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級<br>高校~</button>
-        </div>
-      </div>
-      <div class="card text-center">
-        <h2>2. Activity / 学習内容</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <button class="btn btn-primary" onclick="showView('vocabulary')">📚 Words<br>単語</button>
-          <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ Grammar<br>文法</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="vocabulary-view" class="hidden">
-      <div class="card text-center">
-        <div><span class="badge" id="v-lvl-badge"></span><span class="badge" id="v-cat-badge" style="background:var(--accent-color)"></span></div>
-        <div id="v-emoji" style="font-size: 6rem; margin: 15px 0;"></div>
-        <div class="lang-row"><div class="lang-label">English</div><div class="lang-text"><span id="v-en"></span><button class="btn-speak" onclick="speak('en')">🔊</button></div></div>
-        <div class="lang-row"><div class="lang-label">Kiswahili</div><div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')">🔊</button></div></div>
-        <div class="lang-row"><div class="lang-label">日本語</div><div class="lang-text"><span id="v-ja"></span><button class="btn-speak" onclick="speak('ja')">🔊</button></div></div>
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px;">
-          <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
-          <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="grammar-choice-view" class="hidden">
-      <div class="card text-center">
-        <h2>文法レベルを選んでください</h2>
-        <div style="display: grid; gap: 10px; margin-top: 20px;">
-          <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">初級文法</button>
-          <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="setLevel('Intermediate'); showView('grammar')">中級文法</button>
-          <button class="btn btn-primary" style="background-color: var(--accent-color);" onclick="setLevel('Advanced'); showView('grammar')">上級文法</button>
-          <button class="btn" style="background: #e2e8f0; margin-top: 10px;" onclick="showView('home')">戻る</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="grammar-view" class="hidden">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-           <button class="btn" style="padding: 5px 15px; background: #e2e8f0;" onclick="showView('grammar-choice')">← 戻る</button>
-           <span class="badge" id="g-lvl-badge"></span>
-        </div>
-        <div id="grammar-list">
-          </div>
-      </div>
-    </div>
-  </main>
-
-<script>
-  // --- 単語データ ---
-  const vocabularyData = [
-    { en: "Family", sw: "Familia", ja: "家族(かぞく)", emoji: "👨‍👩‍👧‍👦", level: "Beginner", category: "Life" },
-    { en: "Home", sw: "Nyumba", ja: "家(いえ)", emoji: "🏠", level: "Beginner", category: "Life" },
-    { en: "Kitchen", sw: "Jiko", ja: "台所(だいどころ)", emoji: "🍳", level: "Beginner", category: "Life" },
-    { en: "Window", sw: "Dirisha", ja: "窓(まど)", emoji: "🪟", level: "Beginner", category: "Life" },
-    { en: "Door", sw: "Mlango", ja: "扉(とびら)", emoji: "🚪", level: "Beginner", category: "Life" },
-    { en: "Soap", sw: "Sabuni", ja: "石鹸(せっけん)", emoji: "🧼", level: "Beginner", category: "Life" },
-    { en: "Towel", sw: "Taulo", ja: "タオル(たおる)", emoji: "🧣", level: "Beginner", category: "Life" },
-    { en: "Bed", sw: "Kitanda", ja: "寝台(べっど)", emoji: "🛏️", level: "Beginner", category: "Life" },
-    { en: "Key", sw: "Ufunguo", ja: "鍵(かぎ)", emoji: "🔑", level: "Beginner", category: "Life" },
-    { en: "Money", sw: "Pesa", ja: "お金(おかね)", emoji: "💰", level: "Beginner", category: "Life" },
-    { en: "Teacher", sw: "Mwalimu", ja: "先生(せんせい)", emoji: "🧑‍🏫", level: "Beginner", category: "School" },
-    { en: "Student", sw: "Mwanafunzi", ja: "生徒(せいと)", emoji: "🧑‍🎓", level: "Beginner", category: "School" },
-    { en: "Classroom", sw: "Darasa", ja: "教室(きょうしつ)", emoji: "🏫", level: "Beginner", category: "School" },
-    { en: "Desk", sw: "Dawati", ja: "机(つくえ)", emoji: "🪑", level: "Beginner", category: "School" },
-    { en: "Paper", sw: "Karatasi", ja: "紙(かみ)", emoji: "📄", level: "Beginner", category: "School" },
-    { en: "Pencil", sw: "Penseli", ja: "鉛筆(えんぴつ)", emoji: "✏️", level: "Beginner", category: "School" },
-    { en: "Eraser", sw: "Raba", ja: "消しゴム(けしごむ)", emoji: "🧽", level: "Beginner", category: "School" },
-    { en: "Bag", sw: "Mkoba", ja: "鞄(かばん)", emoji: "🎒", level: "Beginner", category: "School" },
-    { en: "Friend", sw: "Rafiki", ja: "友達(ともだち)", emoji: "🤝", level: "Beginner", category: "School" },
-    { en: "Homework", sw: "Kazi ya nyumbani", ja: "宿題(しゅくだい)", emoji: "📝", level: "Beginner", category: "School" },
-    { en: "Rice", sw: "Wali", ja: "ご飯(ごはん)", emoji: "🍚", level: "Beginner", category: "Food" },
-    { en: "Bread", sw: "Mkate", ja: "パン(ぱん)", emoji: "🍞", level: "Beginner", category: "Food" },
-    { en: "Egg", sw: "Yai", ja: "卵(たまご)", emoji: "🥚", level: "Beginner", category: "Food" },
-    { en: "Meat", sw: "Nyama", ja: "肉(にく)", emoji: "🍖", level: "Beginner", category: "Food" },
-    { en: "Vegetable", sw: "Mboga", ja: "野菜(野菜)", emoji: "🥦", level: "Beginner", category: "Food" },
-    { en: "Fruit", sw: "Tunda", ja: "果物(くだもの)", emoji: "🍎", level: "Beginner", category: "Food" },
-    { en: "Tea", sw: "Chai", ja: "茶(ちゃ)", emoji: "🍵", level: "Beginner", category: "Food" },
-    { en: "Milk", sw: "Maziwa", ja: "牛乳(ぎゅうにゅう)", emoji: "🥛", level: "Beginner", category: "Food" },
-    { en: "Salt", sw: "Chumvi", ja: "塩(しお)", emoji: "🧂", level: "Beginner", category: "Food" },
-    { en: "Sugar", sw: "Sukari", ja: "砂糖(さとう)", emoji: "🍬", level: "Beginner", category: "Food" },
-    { en: "Body", sw: "Mwili", ja: "体(からだ)", emoji: "🧍", level: "Beginner", category: "Body" },
-    { en: "Head", sw: "Kichwa", ja: "頭(あたま)", emoji: "🙆", level: "Beginner", category: "Body" },
-    { en: "Face", sw: "Uso", ja: "顔(かお)", emoji: "😊", level: "Beginner", category: "Body" },
-    { en: "Hair", sw: "Nywele", ja: "髪(かみ)", emoji: "💇", level: "Beginner", category: "Body" },
-    { en: "Eye", sw: "Jicho", ja: "目(め)", emoji: "👁️", level: "Beginner", category: "Body" },
-    { en: "Ear", sw: "Sikio", ja: "耳(みみ)", emoji: "👂", level: "Beginner", category: "Body" },
-    { en: "Nose", sw: "Pua", ja: "鼻(はな)", emoji: "👃", level: "Beginner", category: "Body" },
-    { en: "Mouth", sw: "Kinywa", ja: "口(くち)", emoji: "👄", level: "Beginner", category: "Body" },
-    { en: "Tooth", sw: "Jino", ja: "歯(は)", emoji: "🦷", level: "Beginner", category: "Body" },
-    { en: "Arm", sw: "Mkono", ja: "腕(うで)", emoji: "💪", level: "Beginner", category: "Body" },
-    { en: "Leg", sw: "Mguu", ja: "脚(あし)", emoji: "🦵", level: "Beginner", category: "Body" },
-    { en: "Heart", sw: "Moyo", ja: "心臓(しんぞう)", emoji: "❤️", level: "Beginner", category: "Body" },
-    { en: "Sun", sw: "Jua", ja: "太陽(たいよう)", emoji: "☀️", level: "Beginner", category: "Nature" },
-    { en: "Moon", sw: "Mwezi", ja: "月(つき)", emoji: "🌙", level: "Beginner", category: "Nature" },
-    { en: "Star", sw: "Nyota", ja: "星(ほし)", emoji: "⭐", level: "Beginner", category: "Nature" },
-    { en: "Sky", sw: "Mbingu", ja: "空(そら)", emoji: "☁️", level: "Beginner", category: "Nature" },
-    { en: "Rain", sw: "Mvua", ja: "雨(あめ)", emoji: "☔", level: "Beginner", category: "Nature" },
-    { en: "Wind", sw: "Upepo", ja: "風(かぜ)", emoji: "🌬️", level: "Beginner", category: "Nature" },
-    { en: "Flower", sw: "Ua", ja: "花(はな)", emoji: "🌻", level: "Beginner", category: "Nature" },
-    { en: "Mountain", sw: "Mlima", ja: "山(やま)", emoji: "⛰️", level: "Beginner", category: "Nature" },
-    { en: "River", sw: "Mto", ja: "川(かわ)", emoji: "🏞️", level: "Beginner", category: "Nature" },
-    { en: "Earth", sw: "Dunia", ja: "地球(ちきゅう)", emoji: "🌍", level: "Beginner", category: "Nature" },
-    { en: "Animal", sw: "Mnyama", ja: "動物(どうぶつ)", emoji: "🐾", level: "Beginner", category: "Animal" },
-    { en: "Dog", sw: "Mbwa", ja: "犬(いぬ)", emoji: "🐶", level: "Beginner", category: "Animal" },
-    { en: "Cat", sw: "Paka", ja: "猫(ねこ)", emoji: "🐱", level: "Beginner", category: "Animal" },
-    { en: "Bird", sw: "Ndege", ja: "鳥(とり)", emoji: "🐦", level: "Beginner", category: "Animal" },
-    { en: "Elephant", sw: "Tembo", ja: "象(ぞう)", emoji: "🐘", level: "Beginner", category: "Animal" },
-    { en: "Lion", sw: "Simba", ja: "獅子(しし)", emoji: "🦁", level: "Beginner", category: "Animal" },
-    { en: "Giraffe", sw: "Twiga", ja: "麒麟(きりん)", emoji: "🦒", level: "Beginner", category: "Animal" },
-    { en: "Snake", sw: "Nyoka", ja: "蛇(へび)", emoji: "🐍", level: "Beginner", category: "Animal" },
-    { en: "Fish", sw: "Samaki", ja: "魚(さかな)", emoji: "🐟", level: "Beginner", category: "Animal" },
-    { en: "Bee", sw: "Nyuki", ja: "蜂(はち)", emoji: "🐝", level: "Beginner", category: "Animal" },
-    { en: "Car", sw: "Gari", ja: "車(くるま)", emoji: "🚗", level: "Beginner", category: "Town" },
-    { en: "Bicycle", sw: "Baiskeli", ja: "自転車(じてんしゃ)", emoji: "🚲", level: "Beginner", category: "Town" },
-    { en: "Bus", sw: "Basi", ja: "バス(ばす)", emoji: "🚌", level: "Beginner", category: "Town" },
-    { en: "Market", sw: "Soko", ja: "市場(いちば)", emoji: "🛒", level: "Beginner", category: "Town" },
-    { en: "Hospital", sw: "Hospitali", ja: "病院(びょういん)", emoji: "🏥", level: "Beginner", category: "Town" },
-    { en: "Road", sw: "Barabara", ja: "道路(どうろ)", emoji: "🛣️", level: "Beginner", category: "Town" },
-    { en: "Bridge", sw: "Daraja", ja: "橋(はし)", emoji: "🌉", level: "Beginner", category: "Town" },
-    { en: "Clothes", sw: "Nguo", ja: "服(ふく)", emoji: "👕", level: "Beginner", category: "Town" },
-    { en: "Shoe", sw: "Kiatu", ja: "靴(くつ)", emoji: "👟", level: "Beginner", category: "Town" },
-    { en: "Hat", sw: "Kofia", ja: "帽子(ぼうし)", emoji: "👒", level: "Beginner", category: "Town" },
-    { en: "Today", sw: "Leo", ja: "今日(きょう)", emoji: "📅", level: "Beginner", category: "Time" },
-    { en: "Now", sw: "Sasa", ja: "今(いま)", emoji: "⏰", level: "Beginner", category: "Time" },
-    { en: "Day", sw: "Mchana", ja: "昼(ひる)", emoji: "☀️", level: "Beginner", category: "Time" },
-    { en: "Night", sw: "Usiku", ja: "夜(よる)", emoji: "🌙", level: "Beginner", category: "Time" },
-    { en: "Morning", sw: "Asubuhi", ja: "朝(あさ)", emoji: "🌅", level: "Beginner", category: "Time" },
-    { en: "Sunday", sw: "Jumapili", ja: "日曜日(にちようび)", emoji: "⛪", level: "Beginner", category: "Time" },
-    { en: "Monday", sw: "Jumatatu", ja: "月曜日(げつようび)", emoji: "🌙", level: "Beginner", category: "Time" },
-    { en: "Summer", sw: "Kiangazi", ja: "夏(なつ)", emoji: "🌻", level: "Beginner", category: "Time" },
-    { en: "Winter", sw: "Kipupwe", ja: "冬(ふゆ)", emoji: "❄️", level: "Beginner", category: "Time" },
-    { en: "Red", sw: "Nyekundu", ja: "赤(あか)", emoji: "🔴", level: "Beginner", category: "Color" },
-    { en: "Blue", sw: "Buluu", ja: "青(あお)", emoji: "🔵", level: "Beginner", category: "Color" },
-    { en: "Green", sw: "Kijani", ja: "緑(みどり)", emoji: "🟢", level: "Beginner", category: "Color" },
-    { en: "Yellow", sw: "Njano", ja: "黄色(きいろ)", emoji: "🟡", level: "Beginner", category: "Color" },
-    { en: "White", sw: "Nyeupe", ja: "白(しろ)", emoji: "⚪", level: "Beginner", category: "Color" },
-    { en: "Black", sw: "Nyeusi", ja: "黒(くろ)", emoji: "⚫", level: "Beginner", category: "Color" },
-    { en: "One", sw: "Moja", ja: "一(いち)", emoji: "1️⃣", level: "Beginner", category: "Number" },
-    { en: "Five", sw: "Tano", ja: "五(ご)", emoji: "5️⃣", level: "Beginner", category: "Number" },
-    { en: "Ten", sw: "Kumi", ja: "十(じゅう)", emoji: "🔟", level: "Beginner", category: "Number" },
-    { en: "Good", sw: "Nzuri", ja: "良い(よい)", emoji: "👍", level: "Beginner", category: "Action" },
-    { en: "Bad", sw: "Mbaya", ja: "悪い(わるい)", emoji: "👎", level: "Beginner", category: "Action" },
-    { en: "Big", sw: "Kubwa", ja: "大きい(おおきい)", emoji: "🐘", level: "Beginner", category: "Action" },
-    { en: "Small", sw: "Ndogo", ja: "小さい(ちいさい)", emoji: "🐜", level: "Beginner", category: "Action" },
-    { en: "Happy", sw: "Heri", ja: "幸せ(しあわせ)", emoji: "😊", level: "Beginner", category: "Action" },
-    { en: "Hot", sw: "Moto", ja: "熱い(あつい)", emoji: "🔥", level: "Beginner", category: "Action" },
-    { en: "Cold", sw: "Baridi", ja: "寒い(さむい)", emoji: "❄️", level: "Beginner", category: "Action" },
-    { en: "Walk", sw: "Tembea", ja: "歩く(あるく)", emoji: "🚶", level: "Beginner", category: "Action" },
-    { en: "Run", sw: "Kimbia", ja: "走る(はしる)", emoji: "🏃", level: "Beginner", category: "Action" },
-    { en: "Play", sw: "Cheza", ja: "遊ぶ(あそぶ)", emoji: "🎮", level: "Beginner", category: "Action" },
-    { en: "Experience", sw: "Uzoefu", ja: "経験(けいけん)", emoji: "🧪", level: "Intermediate", category: "Abstract" },
-    { en: "Government", sw: "Serikali", ja: "政府(せいふ)", emoji: "🏛️", level: "Intermediate", category: "Society" },
-    { en: "Economy", sw: "Uchumi", ja: "経済(けいざい)", emoji: "💹", level: "Intermediate", category: "Society" },
-    { en: "Environment", sw: "Mazingira", ja: "環境(かんきょう)", emoji: "🌳", level: "Intermediate", category: "Nature" },
-    { en: "Education", sw: "Elimu", ja: "教育(きょういく)", emoji: "🎓", level: "Intermediate", category: "School" },
-    { en: "Library", sw: "Maktaba", ja: "図書館(としょかん)", emoji: "📚", level: "Intermediate", category: "Place" },
-    { en: "Experiment", sw: "Jaribio", ja: "実験(じっけん)", emoji: "🧪", level: "Intermediate", category: "Science" },
-    { en: "History", sw: "Historia", ja: "歴史(れきし)", emoji: "📜", level: "Intermediate", category: "School" },
-    { en: "Future", sw: "Mustakabali", ja: "未来(みらい)", emoji: "🚀", level: "Intermediate", category: "Time" },
-    { en: "Dream", sw: "Ndoto", ja: "夢(ゆめ)", emoji: "💭", level: "Intermediate", category: "Abstract" },
-    { en: "Information", sw: "Habari", ja: "情報(じょうほう)", emoji: "ℹ️", level: "Intermediate", category: "Daily" },
-    { en: "Technology", sw: "Teknolojia", ja: "技術(ぎじゅつ)", emoji: "💻", level: "Intermediate", category: "Science" },
-    { en: "Invention", sw: "Uvumbuzi", ja: "発明(はつめい)", emoji: "💡", level: "Intermediate", category: "Science" },
-    { en: "Opportunity", sw: "Fursa", ja: "機会(きかい)", emoji: "🔑", level: "Intermediate", category: "Abstract" },
-    { en: "Relationship", sw: "Uhusiano", ja: "関係(かんけい)", emoji: "👩‍❤️‍👨", level: "Intermediate", category: "People" },
-    { en: "Culture", sw: "Utamaduni", ja: "文化(ぶんか)", emoji: "👘", level: "Intermediate", category: "Society" },
-    { en: "Tradition", sw: "Mila", ja: "伝統(でんとう)", emoji: "🏮", level: "Intermediate", category: "Society" },
-    { en: "Effort", sw: "Juhudi", ja: "努力(どりょく)", emoji: "🔥", level: "Intermediate", category: "Abstract" },
-    { en: "Success", sw: "Mafanikio", ja: "成功(せいこう)", emoji: "🏆", level: "Intermediate", category: "Abstract" },
-    { en: "Challenge", sw: "Changamoto", ja: "挑戦(ちょうせん)", emoji: "🧗", level: "Intermediate", category: "Abstract" },
-    { en: "Medicine", sw: "Dawa", ja: "薬(くすり)", emoji: "💊", level: "Intermediate", category: "Health" },
-    { en: "Health", sw: "Afya", ja: "健康(けんこう)", emoji: "🥗", level: "Intermediate", category: "Health" },
-    { en: "Volunteer", sw: "Mjitoleaji", ja: "志願者(しがんしゃ)", emoji: "🙋", level: "Intermediate", category: "People" },
-    { en: "Election", sw: "Uchaguzi", ja: "選挙(せんきょ)", emoji: "🗳️", level: "Intermediate", category: "Society" },
-    { en: "Passport", sw: "Pasipoti", ja: "旅券(りょけん)", emoji: "🛂", level: "Intermediate", category: "Travel" },
-    { en: "Airport", sw: "Uwanja wa ndege", ja: "空港(くうこう)", emoji: "✈️", level: "Intermediate", category: "Travel" },
-    { en: "Currency", sw: "Sarafu", ja: "通貨(つうか)", emoji: "💴", level: "Intermediate", category: "Economy" },
-    { en: "Message", sw: "Ujumbe", ja: "伝言(でんごん)", emoji: "📩", level: "Intermediate", category: "Daily" },
-    { en: "Celebrate", sw: "Sherehekea", ja: "祝う(いわう)", emoji: "🎉", level: "Intermediate", category: "Action" },
-    { en: "Develop", sw: "Endeleza", ja: "発展させる(はってんさせる)", emoji: "🏗️", level: "Intermediate", category: "Action" },
-    { en: "Global", sw: "Ulimwengu", ja: "地球規模の(ちきゅうきぼの)", emoji: "🌐", level: "Intermediate", category: "Nature" },
-    { en: "Freedom", sw: "Uhuru", ja: "自由(じゆう)", emoji: "🕊️", level: "Intermediate", category: "Abstract" },
-    { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Intermediate", category: "Society" },
-    { en: "Signal", sw: "Ishara", ja: "信号(しんごう)", emoji: "🚥", level: "Intermediate", category: "Town" },
-    { en: "Journey", sw: "Safari", ja: "旅(たび)", emoji: "🧳", level: "Intermediate", category: "Travel" },
-    { en: "Destination", sw: "Mwisho wa safari", ja: "目的地(もくてきち)", emoji: "📍", level: "Intermediate", category: "Travel" },
-    { en: "Discovery", sw: "Ugunduzi", ja: "発見(はっけん)", emoji: "🔎", level: "Intermediate", category: "Science" },
-    { en: "Energy", sw: "Nishati", ja: "エネルギー", emoji: "⚡", level: "Intermediate", category: "Science" },
-    { en: "Climate", sw: "Tabianchi", ja: "気候(きこう)", emoji: "🌡️", level: "Intermediate", category: "Nature" },
-    { en: "Ocean", sw: "Bahari", ja: "海洋(かいよう)", emoji: "🌊", level: "Intermediate", category: "Nature" },
-    { en: "Forest", sw: "Msitu", ja: "森(もり)", emoji: "🌲", level: "Intermediate", category: "Nature" },
-    { en: "Agriculture", sw: "Kilimo", ja: "農業(のうぎょう)", emoji: "🚜", level: "Intermediate", category: "Life" },
-    { en: "Industry", sw: "Viwanda", ja: "産業(さんぎょう)", emoji: "🏭", level: "Intermediate", category: "Society" },
-    { en: "Trade", sw: "Biashara", ja: "貿易(ぼうえき)", emoji: "🚢", level: "Intermediate", category: "Economy" },
-    { en: "Communication", sw: "Mawasiliano", ja: "通信(つうしん)", emoji: "📡", level: "Intermediate", category: "Tech" },
-    { en: "Internet", sw: "Mtandao", ja: "インターネット", emoji: "🌐", level: "Intermediate", category: "Tech" },
-    { en: "Software", sw: "Programu", ja: "ソフトウェア", emoji: "💿", level: "Intermediate", category: "Tech" },
-    { en: "Electric", sw: "Umeme", ja: "電気の(でんきの)", emoji: "💡", level: "Intermediate", category: "Tech" },
-    { en: "Modern", sw: "Kisasa", ja: "現代的な(げんだいてきな)", emoji: "🏙️", level: "Intermediate", category: "Time" },
-    { en: "Traditional", sw: "Kiasili", ja: "伝統的な(でんとうてきな)", emoji: "🎍", level: "Intermediate", category: "Society" },
-    { en: "Citizen", sw: "Raia", ja: "国民(こくみん)", emoji: "👥", level: "Intermediate", category: "Society" },
-    { en: "Leader", sw: "Kiongozi", ja: "指導者(しどうしゃ)", emoji: "👑", level: "Intermediate", category: "People" },
-    { en: "Peace", sw: "Amani", ja: "平和(へいわ)", emoji: "☮️", level: "Intermediate", category: "Abstract" },
-    { en: "Conflict", sw: "Migogoro", ja: "紛争(ふんそう)", emoji: "⚔️", level: "Intermediate", category: "Society" },
-    { en: "Solution", sw: "Suluhisho", ja: "解決策(かいけつさく)", emoji: "✅", level: "Intermediate", category: "Abstract" },
-    { en: "Problem", sw: "Tatizo", ja: "問題(もんだい)", emoji: "❓", level: "Intermediate", category: "Abstract" },
-    { en: "Knowledge", sw: "Maarifa", ja: "知識(ちしき)", emoji: "📖", level: "Intermediate", category: "Academic" },
-    { en: "Skill", sw: "Ujuzi", ja: "技能(ぎのう)", emoji: "🛠️", level: "Intermediate", category: "Academic" },
-    { en: "Confidence", sw: "Kujiamini", ja: "自信(じしん)", emoji: "💪", level: "Intermediate", category: "Abstract" },
-	{ en: "Creativity", sw: "Ubunifu", ja: "創造性(そうぞうせい)", emoji: "🎨", level: "Intermediate", category: "Abstract" },
-    { en: "Strategy", sw: "Mbinu", ja: "戦略(せんりゃく)", emoji: "🎯", level: "Intermediate", category: "Business" },
-    { en: "Investment", sw: "Uwekezaji", ja: "投資(とうし)", emoji: "📈", level: "Intermediate", category: "Economy" },
-    { en: "Production", sw: "Uzalishaji", ja: "生産(せいさん)", emoji: "🏭", level: "Intermediate", category: "Industry" },
-    { en: "Quality", sw: "Ubora", ja: "品質(ひんしつ)", emoji: "⭐", level: "Intermediate", category: "Business" },
-    { en: "Quantity", sw: "Kiasi", ja: "量(りょう)", emoji: "🔢", level: "Intermediate", category: "Business" },
-    { en: "Resource", sw: "Rasilimali", ja: "資源(しげん)", emoji: "💎", level: "Intermediate", category: "Nature" },
-    { en: "Environment", sw: "Mazingira", ja: "環境(かんきょう)", emoji: "🍃", level: "Intermediate", category: "Nature" },
-    { en: "Conservation", sw: "Uhifadhi", ja: "保護(ほご)", emoji: "🛡️", level: "Intermediate", category: "Nature" },
-    { en: "Pollution", sw: "Uchafuzi", ja: "汚染(おせん)", emoji: "💨", level: "Intermediate", category: "Nature" },
-    { en: "Atmosphere", sw: "Angahewa", ja: "大気(たいき)", emoji: "☁️", level: "Intermediate", category: "Nature" },
-    { en: "Space", sw: "Nafasi", ja: "宇宙(うちゅう)", emoji: "🚀", level: "Intermediate", category: "Science" },
-    { en: "Planet", sw: "Sayari", ja: "惑星(わくせい)", emoji: "🪐", level: "Intermediate", category: "Science" },
-    { en: "Research", sw: "Utafiti", ja: "研究(けんきゅう)", emoji: "🧪", level: "Intermediate", category: "Academic" },
-    { en: "Analysis", sw: "Uchambuzi", ja: "分析(ぶんせき)", emoji: "📊", level: "Intermediate", category: "Academic" },
-    { en: "Evidence", sw: "Ushahidi", ja: "証拠(しょうこ)", emoji: "🕵️", level: "Intermediate", category: "Science" },
-    { en: "Logic", sw: "Mantiki", ja: "論理(ろんり)", emoji: "🧠", level: "Intermediate", category: "Academic" },
-    { en: "Definition", sw: "Tafsiri", ja: "定義(ていぎ)", emoji: "📖", level: "Intermediate", category: "Academic" },
-    { en: "Purpose", sw: "Kusudi", ja: "目的(もくてき)", emoji: "🚩", level: "Intermediate", category: "Abstract" },
-    { en: "Benefit", sw: "Faida", ja: "利益(りえき)", emoji: "🎁", level: "Intermediate", category: "Abstract" },
-    { en: "Disadvantage", sw: "Hasara", ja: "欠点(けってん)", emoji: "⚠️", level: "Intermediate", category: "Abstract" },
-    { en: "Success", sw: "Mafanikio", ja: "成功(せいこう)", emoji: "🏆", level: "Intermediate", category: "Abstract" },
-    { en: "Failure", sw: "Kushindwa", ja: "失敗(しっぱい)", emoji: "❌", level: "Intermediate", category: "Abstract" },
-    { en: "Improvement", sw: "Uboreshaji", ja: "改善(かいぜん)", emoji: "🆙", level: "Intermediate", category: "Abstract" },
-    { en: "Development", sw: "Maendeleo", ja: "開発(かいはつ)", emoji: "🏗️", level: "Intermediate", category: "Industry" },
-    { en: "Construction", sw: "Ujenzi", ja: "建設(けんせつ)", emoji: "🚜", level: "Intermediate", category: "Industry" },
-    { en: "Transport", sw: "Usafiri", ja: "輸送(ゆそう)", emoji: "🚚", level: "Intermediate", category: "Town" },
-    { en: "Safety", sw: "Usalama", ja: "安全(あんぜん)", emoji: "⛑️", level: "Intermediate", category: "Life" },
-    { en: "Health", sw: "Afya", ja: "健康(けんこう)", emoji: "🏥", level: "Intermediate", category: "Life" },
-    { en: "Disease", sw: "Ugonjwa", ja: "病気(びょうき)", emoji: "🤒", level: "Intermediate", category: "Life" },
-    { en: "Prevention", sw: "Kinga", ja: "予防(よぼう)", emoji: "🛡️", level: "Intermediate", category: "Life" },
-    { en: "Culture", sw: "Utamaduni", ja: "文化(ぶんか)", emoji: "🎭", level: "Intermediate", category: "Society" },
-    { en: "Language", sw: "Lugha", ja: "言語(げんご)", emoji: "🗣️", level: "Intermediate", category: "Society" },
-    { en: "Literature", sw: "Fasihi", ja: "文学(ぶんがく)", emoji: "📚", level: "Intermediate", category: "Society" },
-    { en: "Religion", sw: "Dini", ja: "宗教(しゅうきょう)", emoji: "🕍", level: "Intermediate", category: "Society" },
-    { en: "Politics", sw: "Siasa", ja: "政治(せいじ)", emoji: "🗳️", level: "Intermediate", category: "Society" },
-    { en: "Economy", sw: "Uchumi", ja: "経済(けいざい)", emoji: "💹", level: "Intermediate", category: "Society" },
-    { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Intermediate", category: "Society" },
-    { en: "Responsibility", sw: "Wajibu", ja: "責任(せきにん)", emoji: "🤝", level: "Intermediate", category: "Abstract" },
-    { en: "Community", sw: "Jumuiya", ja: "地域社会(ちいきしゃかい)", emoji: "🏘️", level: "Intermediate", category: "Society" },
-	{ en: "Philosophy", sw: "Falsafa", ja: "哲学(てつがく)", emoji: "🧐", level: "Advanced", category: "Academic" },
-    { en: "Architecture", sw: "Usanifu", ja: "建築(けんちく)", emoji: "🏛️", level: "Advanced", category: "Art" },
-    { en: "Constitution", sw: "Katiba", ja: "憲法(けんぽう)", emoji: "📜", level: "Advanced", category: "Law" },
-    { en: "Innovation", sw: "Ubunifu", ja: "革新(かくしん)", emoji: "🚀", level: "Advanced", category: "Tech" },
-    { en: "Sustainability", sw: "Uendelevu", ja: "持続可能性(じぞくかのうせい)", emoji: "♻️", level: "Advanced", category: "Environment" },
-    { en: "Democracy", sw: "Demokrasia", ja: "民主主義(みんしゅしゅぎ)", emoji: "🗳️", level: "Advanced", category: "Society" },
-    { en: "Artificial Intelligence", sw: "Akili mnemba", ja: "人工知能(じんこうちのう)", emoji: "🤖", level: "Advanced", category: "Tech" },
-    { en: "Global Warming", sw: "Ongezeko la joto duniani", ja: "地球温暖化(ちきゅうおんだんか)", emoji: "🌡️", level: "Advanced", category: "Environment" },
-    { en: "Diversity", sw: "Anuai", ja: "多様性(たようせい)", emoji: "🌈", level: "Advanced", category: "Society" },
-    { en: "Psychology", sw: "Saikolojia", ja: "心理学(しんりがく)", emoji: "🧠", level: "Advanced", category: "Academic" },
-    { en: "Ethics", sw: "Maadili", ja: "倫理(りんり)", emoji: "⚖️", level: "Advanced", category: "Philosophy" },
-    { en: "Hypothesis", sw: "Nadharia tete", ja: "仮説(かせつ)", emoji: "🧪", level: "Advanced", category: "Science" },
-    { en: "Quantum", sw: "Kwanta", ja: "量子(りょうし)", emoji: "⚛️", level: "Advanced", category: "Science" },
-    { en: "Evolution", sw: "Mageuzi", ja: "進化(しんか)", emoji: "🐒", level: "Advanced", category: "Science" },
-    { en: "Infrastructure", sw: "Miundombinu", ja: "社会基盤(いんふら)", emoji: "🏗️", level: "Advanced", category: "Town" },
-    { en: "Negotiation", sw: "Majadiliano", ja: "交渉(こうしょう)", emoji: "🤝", level: "Advanced", category: "Business" },
-    { en: "Investment", sw: "Uwekezaji", ja: "投資(とうし)", emoji: "💰", level: "Advanced", category: "Economy" },
-    { en: "Bureaucracy", sw: "Urasimu", ja: "官僚制度(かんりょうせいど)", emoji: "🏢", level: "Advanced", category: "Society" },
-    { en: "Human Rights", sw: "Haki za binadamu", ja: "人権(じんけん)", emoji: "🕊️", level: "Advanced", category: "Law" },
-    { en: "Sovereignty", sw: "Enzi", ja: "主権(しゅけん)", emoji: "👑", level: "Advanced", category: "Law" },
-    { en: "Paradox", sw: "Kitendawili", ja: "逆説(ぱらどっくす)", emoji: "🌀", level: "Advanced", category: "Philosophy" },
-    { en: "Intuition", sw: "Mvuto wa ndani", ja: "直感(ちょっかん)", emoji: "⚡", level: "Advanced", category: "Abstract" },
-    { en: "Consciousness", sw: "Ufahamu", ja: "意識(いしき)", emoji: "👁️", level: "Advanced", category: "Abstract" },
-    { en: "Aesthetics", sw: "Urembo wa kisanaa", ja: "美学(びがく)", emoji: "🖼️", level: "Advanced", category: "Art" },
-    { en: "Renaissance", sw: "Mwamko mpya", ja: "ルネサンス", emoji: "🎨", level: "Advanced", category: "History" },
-    { en: "Diplomacy", sw: "Diplomasia", ja: "外交(がいこう)", emoji: "🌍", level: "Advanced", category: "Society" },
-    { en: "Sanction", sw: "Vikwazo", ja: "制裁(せいさい)", emoji: "🚫", level: "Advanced", category: "Society" },
-    { en: "Refugee", sw: "Mkimbizi", ja: "難民(なんみん)", emoji: "🏃", level: "Advanced", category: "Society" },
-    { en: "Migration", sw: "Uhamiaji", ja: "移住(いじゅう)", emoji: "✈️", level: "Advanced", category: "Society" },
-    { en: "Pandemic", sw: "Janga la kimataifa", ja: "世界的流行(ぱんでみっく)", emoji: "😷", level: "Advanced", category: "Health" },
-    { en: "Vaccine", sw: "Chanjo", ja: "ワクチン", emoji: "💉", level: "Advanced", category: "Health" },
-    { en: "Gene", sw: "Vinasaba", ja: "遺伝子(いでんし)", emoji: "🧬", level: "Advanced", category: "Science" },
-    { en: "Galaxy", sw: "Galaksi", ja: "銀河(ぎんが)", emoji: "🌌", level: "Advanced", category: "Science" },
-    { en: "Gravity", sw: "Vuta ya nchi", ja: "重力(じゅうりょく)", emoji: "🍎", level: "Advanced", category: "Science" },
-    { en: "Robot", sw: "Roboti", ja: "ロボット", emoji: "🤖", level: "Advanced", category: "Tech" },
-    { en: "Crypto", sw: "Siri", ja: "暗号(あんごう)", emoji: "🔐", level: "Advanced", category: "Tech" },
-    { en: "Privacy", sw: "Faragha", ja: "個人情報(ぷらいばしー)", emoji: "🛡️", level: "Advanced", category: "Tech" },
-    { en: "Copyright", sw: "Haki miliki", ja: "著作権(ちょさくけん)", emoji: "©️", level: "Advanced", category: "Law" },
-    { en: "Contract", sw: "Mkataba", ja: "契約(けいやく)", emoji: "📝", level: "Advanced", category: "Law" },
-    { en: "Witness", sw: "Shahidi", ja: "証人(しょうにん)", emoji: "🗣️", level: "Advanced", category: "Law" },
-    { en: "Inheritance", sw: "Urithi", ja: "相続(そうぞく)", emoji: "🎁", level: "Advanced", category: "Law" },
-    { en: "Metaphor", sw: "Istiara", ja: "隠喩(めたふぁー)", emoji: "📖", level: "Advanced", category: "Academic" },
-    { en: "Syntax", sw: "Sintaksi", ja: "構文(こうぶん)", emoji: "💻", level: "Advanced", category: "Academic" },
-    { en: "Algorithm", sw: "Algoriti", ja: "アルゴリズム", emoji: "🔢", level: "Advanced", category: "Tech" },
-    { en: "Strategy", sw: "Mkakati", ja: "戦略(せんりゃく)", emoji: "🎯", level: "Advanced", category: "Business" },
-    { en: "Profit", sw: "Faida", ja: "利益(りえき)", emoji: "📈", level: "Advanced", category: "Economy" },
-    { en: "Debt", sw: "Deni", ja: "負債(ふさい)", emoji: "📉", level: "Advanced", category: "Economy" },
-    { en: "Inflation", sw: "Mfumuko wa bei", ja: "インフレ", emoji: "🎈", level: "Advanced", category: "Economy" },
-    { en: "Entrepreneur", sw: "Mjasiriamali", ja: "起業家(きぎょうか)", emoji: "💼", level: "Advanced", category: "Business" },
-    { en: "Sustainability", sw: "Uendelevu", ja: "持続可能性", emoji: "🌱", level: "Advanced", category: "Environment" },
-	{ en: "Galaxy", sw: "Kilimia", ja: "銀河(ぎんが)", emoji: "🌌", level: "Advanced", category: "Science" },
-    { en: "Atmosphere", sw: "Angahewa", ja: "大気(たいき)", emoji: "☁️", level: "Advanced", category: "Science" },
-    { en: "Exploration", sw: "Uvumbuzi", ja: "探検(たんけん)", emoji: "🧭", level: "Advanced", category: "Travel" },
-    { en: "Satellite", sw: "Satelaiti", ja: "人工衛星(じんこうえいせい)", emoji: "🛰️", level: "Advanced", category: "Tech" },
-    { en: "Microscope", sw: "Darubini kali", ja: "顕微鏡(けんびきょう)", emoji: "🔬", level: "Advanced", category: "Science" },
-    { en: "Telescope", sw: "Darubini", ja: "望遠鏡(ぼうえんきょう)", emoji: "🔭", level: "Advanced", category: "Science" },
-    { en: "Genetics", sw: "Jenetiki", ja: "遺伝学(いでんがく)", emoji: "🧬", level: "Advanced", category: "Science" },
-    { en: "Organism", sw: "Kiumbe", ja: "有機体(ゆうきたい)", emoji: "🦠", level: "Advanced", category: "Science" },
-    { en: "Evolution", sw: "Mageuzi", ja: "進化(しんか)", emoji: "🐒", level: "Advanced", category: "Science" },
-    { en: "Diversity", sw: "Anuwai", ja: "多様性(たようせい)", emoji: "🧩", level: "Advanced", category: "Society" },
-    { en: "Inclusion", sw: "Ujumuishaji", ja: "包括(ほうかつ)", emoji: "🤝", level: "Advanced", category: "Society" },
-    { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Advanced", category: "Law" },
-    { en: "Regulation", sw: "Kanuni", ja: "規制(きせい)", emoji: "📝", level: "Advanced", category: "Law" },
-    { en: "Conflict", sw: "Migogoro", ja: "紛争(ふんそう)", emoji: "⚔️", level: "Advanced", category: "Society" },
-    { en: "Resolution", sw: "Utatuzi", ja: "解決(かいけつ)", emoji: "💡", level: "Advanced", category: "Abstract" },
-    { en: "Perspective", sw: "Mtazamo", ja: "観点(かんてん)", emoji: "👓", level: "Advanced", category: "Abstract" },
-    { en: "Philosophy", sw: "Falsafa", ja: "哲学(てつがく)", emoji: "📜", level: "Advanced", category: "Academic" },
-    { en: "Ethics", sw: "Maadili", ja: "倫理(りんり)", emoji: "😇", level: "Advanced", category: "Academic" },
-    { en: "Abstract", sw: "Kidhahania", ja: "抽象的(ちゅうしょうてき)", emoji: "🎨", level: "Advanced", category: "Abstract" },
-    { en: "Concept", sw: "Dhana", ja: "概念(がいねん)", emoji: "💡", level: "Advanced", category: "Abstract" },
-    { en: "Efficiency", sw: "Ufanisi", ja: "効率(こうりつ)", emoji: "⚡", level: "Advanced", category: "Business" },
-    { en: "Framework", sw: "Mfumo", ja: "枠組み(わくぐみ)", emoji: "🏗️", level: "Advanced", category: "Academic" },
-    { en: "Implementation", sw: "Utekelezaji", ja: "実行(じっこう)", emoji: "⚙️", level: "Advanced", category: "Business" },
-    { en: "Indicator", sw: "Kiashiria", ja: "指標(しひょう)", emoji: "📈", level: "Advanced", category: "Business" },
-    { en: "Maintenance", sw: "Matengenezo", ja: "保守(ほしゅ)", emoji: "🛠️", level: "Advanced", category: "Tech" },
-    { en: "Objective", sw: "Lengo", ja: "目標(もくひょう)", emoji: "🎯", level: "Advanced", category: "Abstract" },
-    { en: "Participation", sw: "Ushiriki", ja: "参加(さんか)", emoji: "🙋", level: "Advanced", category: "Society" },
-    { en: "Prevention", sw: "Kinga", ja: "予防(よぼう)", emoji: "🛡️", level: "Advanced", category: "Health" },
-    { en: "Procedure", sw: "Utaratibu", ja: "手順(てじゅん)", emoji: "📋", level: "Advanced", category: "Abstract" },
-    { en: "Recognition", sw: "Utambuzi", ja: "認識(にんしき)", emoji: "🧠", level: "Advanced", category: "Abstract" },
-    { en: "Reliability", sw: "Uaminifu", ja: "信頼性(しんらいせい)", emoji: "🤝", level: "Advanced", category: "Abstract" },
-    { en: "Resource", sw: "Rasilimali", ja: "資源(しげん)", emoji: "💎", level: "Advanced", category: "Economy" },
-    { en: "Standard", sw: "Kiwango", ja: "標準(ひょうじゅん)", emoji: "📏", level: "Advanced", category: "Abstract" },
-    { en: "Transformation", sw: "Mabadiliko", ja: "変革(へんかく)", emoji: "🦋", level: "Advanced", category: "Abstract" },
-    { en: "Transparency", sw: "Uwazi", ja: "透明性(とうめいせい)", emoji: "💎", level: "Advanced", category: "Society" },
-    { en: "Urbanization", sw: "Ukuaji wa miji", ja: "都市化(としか)", emoji: "🏙️", level: "Advanced", category: "Society" },
-    { en: "Validation", sw: "Uthibitisho", ja: "検証(けんしょう)", emoji: "✅", level: "Advanced", category: "Academic" },
-    { en: "Vulnerability", sw: "Mazingira hatarishi", ja: "脆弱性(ぜいじゃくせい)", emoji: "🐚", level: "Advanced", category: "Abstract" },
-    { en: "Welfare", sw: "Ustawi", ja: "福祉(ふくし)", emoji: "🏥", level: "Advanced", category: "Society" },
-    { en: "Architecture", sw: "Usanifu majengo", ja: "建築(けんちく)", emoji: "🏛️", level: "Advanced", category: "Art" },
-    { en: "Colleague", sw: "Mfanyakazi mwenzangu", ja: "同僚(どうりょう)", emoji: "💼", level: "Advanced", category: "People" },
-    { en: "Contribution", sw: "Mchango", ja: "貢献(こうけん)", emoji: "🤲", level: "Advanced", category: "Society" },
-    { en: "Description", sw: "Maelezo", ja: "記述(きじゅつ)", emoji: "📝", level: "Advanced", category: "Abstract" },
-    { en: "Evaluation", sw: "Tathmini", ja: "評価(ひょうか)", emoji: "📋", level: "Advanced", category: "Academic" },
-    { en: "Generation", sw: "Kizazi", ja: "世代(せだい)", emoji: "👪", level: "Advanced", category: "People" },
-    { en: "Heritage", sw: "Urithi", ja: "遺産(いさん)", emoji: "🏰", level: "Advanced", category: "Society" },
-    { en: "Motivation", sw: "Motisha", ja: "動機付け(もちべーしょん)", emoji: "🔥", level: "Advanced", category: "Abstract" },
-    { en: "Perspective", sw: "Mtazamo", ja: "遠近法/見方", emoji: "🖼️", level: "Advanced", category: "Art" },
-    { en: "Significant", sw: "Muhimu sana", ja: "重要な(じゅうような)", emoji: "⚠️", level: "Advanced", category: "Abstract" },
-    { en: "Substantial", sw: "Kikubwa", ja: "実質的な(じっしつてきな)", emoji: "📦", level: "Advanced", category: "Abstract" },
-  ];
-
-// --- 文法データ  ---
- const grammarData = [
-    // --- 初級：Beginner (50件) ---
-    { title: "基本の挨拶", sw_phrase: "Habari gani?", en_phrase: "How are you?", ja_trans: "お元気ですか？", ja_explanation: "最も一般的な挨拶です。", level: "Beginner" },
-    { title: "元気な返事", sw_phrase: "Nzuri sana, asante!", en_phrase: "Very good, thank you!", ja_trans: "とても元気です、ありがとう！", ja_explanation: "Habari...? と聞かれた時の定番の答え方です。", level: "Beginner" },
-    { title: "自己紹介", sw_phrase: "Jina langu ni Yuki.", en_phrase: "My name is Yuki.", ja_trans: "私の名前はユキです。", ja_explanation: "Jina(名前) langu(私の) ni(〜です) という構成です。", level: "Beginner" },
-    { title: "出身を伝える", sw_phrase: "Ninatoka Japani.", en_phrase: "I am from Japan.", ja_trans: "日本から来ました。", ja_explanation: "Ni(私) na(現在) toka(出る) で出身を表します。", level: "Beginner" },
-    { title: "感謝の表現", sw_phrase: "Asante kwa chakula!", en_phrase: "Thank you for the food!", ja_trans: "食事をありがとう！", ja_explanation: "kwa(〜に対して) を使って具体的に感謝を伝えます。", level: "Beginner" },
-    { title: "丁寧なお願い", sw_phrase: "Nipe maji, tafadhali.", en_phrase: "Give me water, please.", ja_trans: "お水をください。", ja_explanation: "tafadhali(お願いします) は文末に置くと丁寧です。", level: "Beginner" },
-    { title: "現在進行形の質問", sw_phrase: "Unafanya nini sasa?", en_phrase: "What are you doing now?", ja_trans: "今、何をしているの？", ja_explanation: "U(あなた) na(現在) fanya(する) nini(何)？", level: "Beginner" },
-    { title: "現在進行形", sw_phrase: "Ninasoma Kiswahili.", en_phrase: "I am studying Swahili.", ja_trans: "私はスワヒリ語を勉強しています。", ja_explanation: "接頭辞 -na- が現在の動作を表します。", level: "Beginner" },
-    { title: "過去の出来事", sw_phrase: "Nilikula matunda jana.", en_phrase: "I ate fruit yesterday.", ja_trans: "昨日、フルーツを食べました。", ja_explanation: "接頭辞 -li- が過去を表します。janaは昨日。", level: "Beginner" },
-    { title: "未来の予定", sw_phrase: "Nitasafiri kesho.", en_phrase: "I will travel tomorrow.", ja_trans: "明日、旅行に行きます。", ja_explanation: "接頭辞 -ta- が未来を表します。keshoは明日。", level: "Beginner" },
-    { title: "否定の表現", sw_phrase: "Sijui Kiingereza.", en_phrase: "I don't know English.", ja_trans: "英語はわかりません。", ja_explanation: "Si- を文頭につけて否定にします。", level: "Beginner" },
-    { title: "場所を尋ねる", sw_phrase: "Soko liko wapi?", en_phrase: "Where is the market?", ja_trans: "市場はどこですか？", ja_explanation: "wapi(どこ) は文末に置くのが一般的です。", level: "Beginner" },
-    { title: "値段を尋ねる", sw_phrase: "Bei gani?", en_phrase: "How much is it?", ja_trans: "いくらですか？", ja_explanation: "買い物で最もよく使う便利な短縮表現です。", level: "Beginner" },
-    { title: "所有の表現", sw_phrase: "Nina kaka mmoja.", en_phrase: "I have one brother.", ja_trans: "私には兄（弟）が一人います。", ja_explanation: "Nina... で「私は〜を持っている」となります。", level: "Beginner" },
-    { title: "許可を求める", sw_phrase: "Naweza kuingia?", en_phrase: "Can I come in?", ja_trans: "入ってもいいですか？", ja_explanation: "weza(〜できる) を使って許可を尋ねます。", level: "Beginner" },
-    { title: "欲求を伝える", sw_phrase: "Nataka kununua hii.", en_phrase: "I want to buy this.", ja_trans: "これを買いたいです。", ja_explanation: "taka(〜したい) + ku-(動詞) の形です。", level: "Beginner" },
-    { title: "謝罪の表現", sw_phrase: "Samahani kwa kuchelewa.", en_phrase: "Sorry for being late.", ja_trans: "遅れてすみません。", ja_explanation: "Samahani は「すみません」の両方で使えます。", level: "Beginner" },
-    { title: "理解の確認", sw_phrase: "Umeelewa?", en_phrase: "Have you understood?", ja_trans: "わかりましたか？", ja_explanation: "完了を表す -me- を使った疑問文です。", level: "Beginner" },
-    { title: "はい / いいえ", sw_phrase: "Ndiyo, nimeelewa.", en_phrase: "Yes, I have understood.", ja_trans: "はい、わかりました。", ja_explanation: "Ndiyo(はい)、Hapana(いいえ) は基本です。", level: "Beginner" },
-    { title: "時間の表現", sw_phrase: "Sasa ni saa tatu.", en_phrase: "Now it is nine o'clock.", ja_trans: "今は（午前）9時です。", ja_explanation: "スワヒリ時間は日の出から数えます。", level: "Beginner" },
-    { title: "疲れを伝える", sw_phrase: "Nimechoka sana.", en_phrase: "I am very tired.", ja_trans: "とても疲れました。", ja_explanation: "-me- は今の状態も表します。", level: "Beginner" },
-    { title: "別れの挨拶", sw_phrase: "Tutaonana baadaye!", en_phrase: "See you later!", ja_trans: "またあとで会いましょう！", ja_explanation: "baadaye(あとで) を使った定番の言葉です。", level: "Beginner" },
-    { title: "天気の表現", sw_phrase: "Leo kuna jua.", en_phrase: "Today is sunny.", ja_trans: "今日は晴れています。", ja_explanation: "jua(太陽) が kuna(ある) という表現です。", level: "Beginner" },
-    { title: "道案内（右）", sw_phrase: "Geuka kulia.", en_phrase: "Turn right.", ja_trans: "右に曲がってください。", ja_explanation: "kulia(右)、kushoto(左) です。", level: "Beginner" },
-    { title: "同意する", sw_phrase: "Mimi pia!", en_phrase: "Me too!", ja_trans: "私もです！", ja_explanation: "pia(〜も) は便利な言葉です。", level: "Beginner" },
-    { title: "注文の表現", sw_phrase: "Nipe kahawa, tafadhali.", en_phrase: "Give me coffee, please.", ja_trans: "コーヒーをください。", ja_explanation: "お店などで物を注文する時の基本です。", level: "Beginner" },
-    { title: "手伝いの申し出", sw_phrase: "Naweza kukusaidia?", en_phrase: "Can I help you?", ja_trans: "何かお手伝いしましょうか？", ja_explanation: "ku-(あなたを) help(助ける) という構成です。", level: "Beginner" },
-    { title: "名前を聞く", sw_phrase: "Unaitwa nani?", en_phrase: "What is your name?", ja_trans: "お名前は何ですか？", ja_explanation: "「あなたは誰と呼ばれていますか？」です。", level: "Beginner" },
-    { title: "年齢を言う", sw_phrase: "Nina miaka ishirini.", en_phrase: "I am twenty years old.", ja_trans: "私は20歳です。", ja_explanation: "nina(持っている) miaka(年) を使います。", level: "Beginner" },
-    { title: "「好き」を伝える", sw_phrase: "Napenda chakula hiki.", en_phrase: "I like this food.", ja_trans: "この食べ物が好きです。", ja_explanation: "penda(好き) は人にも物にも使えます。", level: "Beginner" },
-    { title: "「嫌い」を伝える", sw_phrase: "Sipendi maziwa.", en_phrase: "I don't like milk.", ja_trans: "牛乳は好きではありません。", ja_explanation: "否定の接頭辞 Si- を使います。", level: "Beginner" },
-    { title: "友人を紹介する", sw_phrase: "Huyu ni rafiki yangu.", en_phrase: "This is my friend.", ja_trans: "こちらは私の友人です。", ja_explanation: "Huyu ni... で人を指して紹介します。", level: "Beginner" },
-    { title: "住んでいる場所", sw_phrase: "Ninaishi Tokyo.", en_phrase: "I live in Tokyo.", ja_trans: "私は東京に住んでいます。", ja_explanation: "ishi(住む) を使った表現です。", level: "Beginner" },
-    { title: "職業を言う", sw_phrase: "Mimi ni mwalimu.", en_phrase: "I am a teacher.", ja_trans: "私は教師です。", ja_explanation: "Mimi ni... の後ろに職業を入れます。", level: "Beginner" },
-    { title: "目的地を聞く", sw_phrase: "Unakwenda wapi?", en_phrase: "Where are you going?", ja_trans: "どこへ行くのですか？", ja_explanation: "行き先を尋ねるフレーズです。", level: "Beginner" },
-    { title: "帰宅の表現", sw_phrase: "Ninakwenda nyumbani.", en_phrase: "I am going home.", ja_trans: "家に帰ります。", ja_explanation: "nyumbani(家へ) は場所を表します。", level: "Beginner" },
-    { title: "飲み物の注文", sw_phrase: "Nataka maji baridi.", en_phrase: "I want cold water.", ja_trans: "冷たい水が欲しいです。", ja_explanation: "baridi(冷たい) は名詞の後に置きます。", level: "Beginner" },
-    { title: "熱い飲み物", sw_phrase: "Chai ya moto.", en_phrase: "Hot tea.", ja_trans: "熱いお茶。", ja_explanation: "moto(火/熱い) を使った表現です。", level: "Beginner" },
-    { title: "トイレの場所", sw_phrase: "Choo kiko wapi?", en_phrase: "Where is the toilet?", ja_trans: "トイレはどこですか？", ja_explanation: "旅先で最も重要な質問の一つです。", level: "Beginner" },
-    { title: "在庫の確認", sw_phrase: "Kuna matunda?", en_phrase: "Is there fruit?", ja_trans: "果物はありますか？", ja_explanation: "Kuna(〜がある) を使った疑問文です。", level: "Beginner" },
-    { title: "体調不良", sw_phrase: "Ninaumwa kichwa.", en_phrase: "I have a headache.", ja_trans: "頭が痛いです。", ja_explanation: "umwa(痛む) + 部位 で症状を伝えます。", level: "Beginner" },
-    { title: "薬を必要とする", sw_phrase: "Nahitaji dawa.", en_phrase: "I need medicine.", ja_trans: "薬が必要です。", ja_explanation: "hitaji(必要とする) を使います。", level: "Beginner" },
-    { title: "少し待つ", sw_phrase: "Subiri kidogo.", en_phrase: "Wait a little.", ja_trans: "ちょっと待ってください。", ja_explanation: "kidogo(少し) をつけると丁寧です。", level: "Beginner" },
-    { title: "完了の合図", sw_phrase: "Tayari!", en_phrase: "Ready! / Done!", ja_trans: "できました！ / 準備完了！", ja_explanation: "終わった時に使います。", level: "Beginner" },
-    { title: "再会の約束", sw_phrase: "Tutaonana kesho.", en_phrase: "See you tomorrow.", ja_trans: "また明日会いましょう。", ja_explanation: "kesho(明日) を使った挨拶です。", level: "Beginner" },
-    { title: "お祝い", sw_phrase: "Hongera sana!", en_phrase: "Congratulations!", ja_trans: "おめでとうございます！", ja_explanation: "成功を祝う時に使います。", level: "Beginner" },
-    { title: "幸運を祈る", sw_phrase: "Kila la heri!", en_phrase: "Good luck!", ja_trans: "幸運を祈ります！", ja_explanation: "直訳は「すべての幸運を」。", level: "Beginner" },
-    { title: "速度の調整", sw_phrase: "Sema polepole.", en_phrase: "Speak slowly.", ja_trans: "ゆっくり話してください。", ja_explanation: "聞き取れない時に便利です。", level: "Beginner" },
-    { title: "繰り返しの依頼", sw_phrase: "Sema tena.", en_phrase: "Say it again.", ja_trans: "もう一度言ってください。", ja_explanation: "tena は「再び」を意味します。", level: "Beginner" },
-    { title: "問題なし", sw_phrase: "Haina nene.", en_phrase: "No problem.", ja_trans: "問題ありません。", ja_explanation: "日常的によく聞く返答です。", level: "Beginner" },
-
-    // --- 中級：Intermediate (30件) ---
-    { title: "理由を言う (Because)", sw_phrase: "Siwezi kuja kwa sababu nina kazi.", en_phrase: "I can't come because I have work.", ja_trans: "仕事があるので行けません。", ja_explanation: "kwa sababu は「なぜなら」です。", level: "Intermediate" },
-    { title: "条件を言う (If)", sw_phrase: "Kama ukitaka, nitakusaidia.", en_phrase: "If you want, I will help you.", ja_trans: "もし君が望むなら、助けるよ。", ja_explanation: "kama は「もし〜なら」です。", level: "Intermediate" },
-    { title: "逆説の表現 (But)", sw_phrase: "Ninajua, lakini nimesahau.", en_phrase: "I know, but I have forgotten.", ja_trans: "知っていますが、忘れました。", ja_explanation: "lakini は「しかし」です。", level: "Intermediate" },
-    { title: "選択の表現 (Or)", sw_phrase: "Unataka chai au kahawa?", en_phrase: "Do you want tea or coffee?", ja_trans: "お茶かコーヒー、どちらがいい？", ja_explanation: "au は「または」です。", level: "Intermediate" },
-    { title: "〜のとき (When)", sw_phrase: "Wakati nilikuwa mtoto...", en_phrase: "When I was a child...", ja_trans: "私が子供だったとき...", ja_explanation: "wakati は時間を表します。", level: "Intermediate" },
-    { title: "伝聞の表現 (That)", sw_phrase: "Alisema kwamba atakuja.", en_phrase: "He said that he will come.", ja_trans: "彼は来ると言いました。", ja_explanation: "kwamba は内容を説明します。", level: "Intermediate" },
-    { title: "目的を言う (In order to)", sw_phrase: "Ninasoma ili nijue.", en_phrase: "I study so that I may know.", ja_trans: "知るために勉強しています。", ja_explanation: "ili は「〜するために」です。", level: "Intermediate" },
-    { title: "比較の表現 (Than)", sw_phrase: "Hii ni nzuri kuliko ile.", en_phrase: "This is better than that.", ja_trans: "これはあれより良いです。", ja_explanation: "kuliko は比較に使います。", level: "Intermediate" },
-    { title: "最上級の表現 (Most)", sw_phrase: "Napenda hii zaidi.", en_phrase: "I like this the most.", ja_trans: "これが一番好きです。", ja_explanation: "zaidi は強調です。", level: "Intermediate" },
-    { title: "勧誘の表現 (Let's)", sw_phrase: "Twende sasa!", en_phrase: "Let's go now!", ja_trans: "さあ、行きましょう！", ja_explanation: "twende は「行きましょう」です。", level: "Intermediate" },
-    { title: "禁止の表現 (Don't)", sw_phrase: "Usifanye hivi!", en_phrase: "Don't do this!", ja_trans: "こんなことしないで！", ja_explanation: "Usi- は強い禁止です。", level: "Intermediate" },
-    { title: "まだ〜している (Still)", sw_phrase: "Angali anasoma.", en_phrase: "He is still reading.", ja_trans: "彼はまだ読んでいます。", ja_explanation: "angali は継続を表します。", level: "Intermediate" },
-    { title: "完了直後の表現 (Just)", sw_phrase: "Nimetoka kula.", en_phrase: "I have just eaten.", ja_trans: "今、食べたばかりです。", ja_explanation: "toka は「〜したばかり」です。", level: "Intermediate" },
-    { title: "継続の表現 (Continue)", sw_phrase: "Endelea kusoma.", en_phrase: "Keep reading.", ja_trans: "読み続けてください。", ja_explanation: "endelea は「続ける」です。", level: "Intermediate" },
-    { title: "代わりの表現 (Instead of)", sw_phrase: "Kunywa maji badala ya soda.", en_phrase: "Drink water instead of soda.", ja_trans: "ソーダの代わりに水を飲みなさい。", ja_explanation: "badala ya は「〜の代わりに」です。", level: "Intermediate" },
-    { title: "〜の前に (Before)", sw_phrase: "Osha mikono kabla ya kula.", en_phrase: "Wash hands before eating.", ja_trans: "食べる前に手を洗いなさい。", ja_explanation: "kabla ya は「〜の前」です。", level: "Intermediate" },
-    { title: "〜の後に (After)", sw_phrase: "Baada ya kazi, nitaenda nyumbani.", en_phrase: "After work, I will go home.", ja_trans: "仕事の後、家に帰ります。", ja_explanation: "baada ya は「〜の後」です。", level: "Intermediate" },
-    { title: "一緒の表現 (With)", sw_phrase: "Njoo pamoja nami.", en_phrase: "Come together with me.", ja_trans: "私と一緒に来てください。", ja_explanation: "pamoja na は「〜と共に」です。", level: "Intermediate" },
-    { title: "欠如の表現 (Without)", sw_phrase: "Chai bila sukari.", en_phrase: "Tea without sugar.", ja_trans: "砂糖なしの紅茶。", ja_explanation: "bila は「〜なしで」です。", level: "Intermediate" },
-    { title: "習慣の表現 (Used to)", sw_phrase: "Yeye husoma kila siku.", en_phrase: "He usually reads every day.", ja_trans: "彼は毎日読書をする習慣があります。", ja_explanation: "hu- は習慣を表します。", level: "Intermediate" },
-    { title: "〜についての表現 (About)", sw_phrase: "Tunazungumza kuhusu safari.", en_phrase: "We are talking about the trip.", ja_trans: "私たちは旅行について話しています。", ja_explanation: "kuhusu は「〜について」です。", level: "Intermediate" },
-    { title: "〜のために (For)", sw_phrase: "Hii ni kwa ajili yako.", en_phrase: "This is for you.", ja_trans: "これはあなたのためです。", ja_explanation: "kwa ajili ya は「〜のために」です。", level: "Intermediate" },
-    { title: "関係代名詞・人 (Who)", sw_phrase: "Mtu anayesoma...", en_phrase: "The person who is reading...", ja_trans: "本を読んでいる人は...", ja_explanation: "anayesoma は「読んでいる（人）」です。", level: "Intermediate" },
-    { title: "関係代名詞・物 (Which)", sw_phrase: "Kitu ninachopenda.", en_phrase: "The thing which I like.", ja_trans: "私が好きな物。", ja_explanation: "ninachopenda は「好きな（物）」です。", level: "Intermediate" },
-    { title: "場所の限定 (Where)", sw_phrase: "Pale ninapoishi.", en_phrase: "The place where I live.", ja_trans: "私が住んでいる場所。", ja_explanation: "ninapoishi は「住んでいる（場所）」です。", level: "Intermediate" },
-    { title: "推量の表現 (Maybe)", sw_phrase: "Labda nitakuja kesho.", en_phrase: "Maybe I will come tomorrow.", ja_trans: "たぶん明日行きます。", ja_explanation: "labda は「たぶん」です。", level: "Intermediate" },
-    { title: "確信の表現 (Certainly)", sw_phrase: "Kwa hakika!", en_phrase: "Certainly!", ja_trans: "その通り！ / 確かに！", ja_explanation: "hakika は強い確信です。", level: "Intermediate" },
-    { title: "同一の表現 (Same)", sw_phrase: "Hii ni sawa na ile.", en_phrase: "This is the same as that.", ja_trans: "これはあれと同じです。", ja_explanation: "sawa na は「同じ」です。", level: "Intermediate" },
-    { title: "相違の表現 (Different)", sw_phrase: "Hii ni tofauti kabisa.", en_phrase: "This is completely different.", ja_trans: "これは全く違います。", ja_explanation: "tofauti は「違う」です。", level: "Intermediate" },
-    { title: "義務の表現 (Must)", sw_phrase: "Lazima niende sasa.", en_phrase: "I must go now.", ja_trans: "もう行かなければなりません。", ja_explanation: "lazima は「〜しなければならない」です。", level: "Intermediate" },
-
-    // --- 上級：Advanced (20件) ---
-    { title: "推測の表現", sw_phrase: "Inaonekana kuwa mvua itanyesha.", en_phrase: "It seems that it will rain.", ja_trans: "雨が降りそうです。", ja_explanation: "推測を表します。", level: "Advanced" },
-    { title: "後悔の表現", sw_phrase: "Ningalijua, nisingalikuja.", en_phrase: "If I had known, I would not have come.", ja_trans: "もし知っていたら...", ja_explanation: "仮定法です。", level: "Advanced" },
-    { title: "驚きの表現", sw_phrase: "Kumbe! Kumbe ameshafika!", en_phrase: "Oh! So he has already arrived!", ja_trans: "へぇー！彼はもう着いてたんだ！", ja_explanation: "意外な事実を知った時の感動詞です。", level: "Advanced" },
-    { title: "ことわざ：急がば回れ", sw_phrase: "Haraka haraka haina baraka.", en_phrase: "Hurry hurry has no blessing.", ja_trans: "急がば回れ。", ja_explanation: "スワヒリ語の代表的な教訓です。", level: "Advanced" },
-    { title: "ことわざ：忍耐は勝利", sw_phrase: "Subira huvuta heri.", en_phrase: "Patience brings happiness.", ja_trans: "待てば海路の日和あり。", ja_explanation: "忍耐が幸運を引き寄せます。", level: "Advanced" },
-    { title: "〜のようである", sw_phrase: "Yeye ni kama kaka yangu.", en_phrase: "He is like my brother.", ja_trans: "彼は私の兄のようです。", ja_explanation: "比喩の表現です。", level: "Advanced" },
-    { title: "可能性の表現", sw_phrase: "Yawezekana atakuja leo.", en_phrase: "It is possible he will come today.", ja_trans: "今日、彼は来る可能性があります。", ja_explanation: "可能性を表します。", level: "Advanced" },
-    { title: "〜せざるを得ない", sw_phrase: "Sina budi kwenda.", en_phrase: "I have no choice but to go.", ja_trans: "行かざるを得ません。", ja_explanation: "強い義務感です。", level: "Advanced" },
-    { title: "相互の動作", sw_phrase: "Wanasumbuliana sana.", en_phrase: "They are bothering each other a lot.", ja_trans: "お互いに困らせ合っています。", ja_explanation: "「お互いに〜する」です。", level: "Advanced" },
-    { title: "使役の表現", sw_phrase: "Mwalimu alinisomesha.", en_phrase: "The teacher made me study.", ja_trans: "先生に勉強させてもらいました。", ja_explanation: "「〜させる」という使役です。", level: "Advanced" },
-    { title: "受動態の表現", sw_phrase: "Chakula kimepikwa.", en_phrase: "The food has been cooked.", ja_trans: "料理が作られました。", ja_explanation: "「〜される」という受身です。", level: "Advanced" },
-    { title: "強調の表現", sw_phrase: "Nilimwambia kabisa!", en_phrase: "I told him clearly!", ja_trans: "彼にはっきりと言いました！", ja_explanation: "「完全に/全く」と強調します。", level: "Advanced" },
-    { title: "〜のふりをする", sw_phrase: "Alijifanya kuwa mgonjwa.", en_phrase: "He pretended to be sick.", ja_trans: "彼は病気のふりをしました。", ja_explanation: "「自分を〜に見せる」です。", level: "Advanced" },
-    { title: "いつの間にか", sw_phrase: "Ghafla, akaanguka.", en_phrase: "Suddenly, he fell.", ja_trans: "突然、彼は転びました。", ja_explanation: "急な出来事です。", level: "Advanced" },
-    { title: "〜さえあれば", sw_phrase: "Iradi tu uwe na furaha.", en_phrase: "As long as you are happy.", ja_trans: "幸せでさえあれば...", ja_explanation: "条件の限定です。", level: "Advanced" },
-    { title: "それぞれの表現", sw_phrase: "Kila mmoja ana kitabu.", en_phrase: "Each one has a book.", ja_trans: "それぞれが本を持っています。", ja_explanation: "「各自」を指します。", level: "Advanced" },
-    { title: "ほぼ・大体", sw_phrase: "Kazi imekaribia kwisha.", en_phrase: "The work is almost finished.", ja_trans: "仕事はほぼ終わりました。", ja_explanation: "完了に近い状態です。", level: "Advanced" },
-    { title: "〜以来", sw_phrase: "Tangu mwaka jana...", en_phrase: "Since last year...", ja_trans: "昨年以来...", ja_explanation: "起点を表します。", level: "Advanced" },
-    { title: "決して〜ない", sw_phrase: "Sitafanya hivyo kamwe.", en_phrase: "I will never do that.", ja_trans: "決してそんなことはしません。", ja_explanation: "強い否定です。", level: "Advanced" },
-    { title: "お別れの挨拶（長期）", sw_phrase: "Kwa heri ya kuonana!", en_phrase: "Goodbye, until we meet again!", ja_trans: "さようなら、また会う日まで！", ja_explanation: "丁寧な別れの言葉です。", level: "Advanced" },
-  ];
-  
-  let currentLevel = 'Beginner';
-  let vIndex = 0;
-
-  function setLevel(lvl) {
-    currentLevel = lvl;
-    document.querySelectorAll('.btn-lvl').forEach(b => b.classList.remove('active'));
-    document.getElementById('lvl-' + lvl).classList.add('active');
-  }
-
-  function showView(id) {
-    // 全てのビューを隠す対象に 'grammar' を追加します
-    ['home', 'grammar-choice', 'vocabulary', 'grammar'].forEach(v => {
-      const view = document.getElementById(v + '-view');
-      if(view) view.classList.add('hidden');
-    });
-
-    // 指定されたビューを表示
-    const target = document.getElementById(id + '-view');
-    if(target) target.classList.remove('hidden');
-
-    if(id === 'vocabulary') {
-      vIndex = 0;
-      document.getElementById('v-lvl-badge').innerText = currentLevel;
-      updateWord();
-    }
-
-    // --- ここが重要：文法を表示する命令 ---
-    if(id === 'grammar') {
-      const badge = document.getElementById('g-lvl-badge');
-      if(badge) badge.innerText = currentLevel;
-      showGrammarList(); // 下で作る関数を呼び出す
-    }
-  }
-
-  function updateWord() {
-    const list = vocabularyData.filter(d => d.level === currentLevel);
-    if(list.length === 0) {
-      document.getElementById('v-en').innerText = "Preparing Data...";
-      document.getElementById('v-sw').innerText = "-";
-      document.getElementById('v-ja').innerText = "-";
-      document.getElementById('v-emoji').innerText = "⏳";
-      return;
-    }
-    const d = list[vIndex];
-    document.getElementById('v-cat-badge').innerText = d.category;
-    document.getElementById('v-emoji').innerText = d.emoji;
-    document.getElementById('v-en').innerText = d.en;
-    document.getElementById('v-sw').innerText = d.sw;
-    document.getElementById('v-ja').innerText = d.ja;
-  }
-
-  function changeWord(step) {
-    const list = vocabularyData.filter(d => d.level === currentLevel);
-    if(list.length === 0) return;
-    vIndex = (vIndex + step + list.length) % list.length;
-    updateWord();
-  }
-
-  function speak(lang) {
-  const textEl = document.getElementById('v-' + lang);
-  if (!textEl) return;
-  const text = textEl.innerText;
-  if (text === "-" || text.includes("Preparing")) return;
-
-  // 強制キャンセル
-  window.speechSynthesis.cancel();
-
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
-
-  // --- 【ここが魔法の1行】 ---
-  // 日本語の時だけ、ほんの少しだけ設定をいじる（これで二重化が解けることが多いです）
-  if (lang === 'ja') {
-    u.pitch = 1.0; // 声の高さ（標準）
-    u.rate = 0.95; // ほんの少しだけゆっくりにする（1.0が標準）
-  }
-
-  window.speechSynthesis.speak(u);
-}
-  // --- 文法リストを生成する命令 (絵文字の読み上げ防止版) ---
-  function showGrammarList() {
-    const listArea = document.getElementById('grammar-list');
-    if(!listArea) return;
-
-    const list = grammarData.filter(d => d.level === currentLevel);
-    listArea.innerHTML = ''; 
-
-    if(list.length === 0) {
-      listArea.innerHTML = '<p class="text-center p-8 text-gray-500">準備中です...</p>';
-      return;
-    }
-
-    list.forEach((item, idx) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.textAlign = 'left';
-      card.style.marginBottom = '20px';
-      card.style.borderLeft = '6px solid var(--secondary-color)';
-
-      card.innerHTML = `
-        <div style="font-size: 0.8rem; color: var(--primary-color); font-weight: bold; margin-bottom: 8px; opacity: 0.7;">
-          ${item.title}
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-          <div style="font-size: 1.3rem; font-weight: bold; color: #333; flex: 1;">
-            <span id="g-sw-${idx}">${item.sw_phrase || "---"}</span>
-          </div>
-          <button class="btn-speak" onclick="speakGrammar('g-sw-${idx}', 'sw')">🔊</button>
-        </div>
-
-        <div style="border-top: 1px dashed #ddd; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="color: #555; font-size: 0.95rem;">
-              🇺🇸 <span id="g-en-${idx}">${item.en_phrase || "---"}</span>
+   <div class="top-navigation">
+      <a href="index.html" class="home-btn">🏠</a>
+      <h1 class="app-title">スワヒリ語学習</h1>
+   </div>
+   <main class="main-content" id="main-menu">
+      <div id="home-view">
+         <div class="card text-center">
+            <h2>1. Level / レベル選択</h2>
+            <div class="level-selector">
+               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級<br>小3~</button>
+               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級<br>中学</button>
+               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級<br>高校~</button>
             </div>
-            <button class="btn-speak" onclick="speakGrammar('g-en-${idx}', 'en')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
-          </div>
-          
-          <div style="color: #444; font-size: 0.95rem; line-height: 1.5; margin-top: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <div style="flex: 1;">
-                <span>🇯🇵</span> 
-                <strong id="g-ja-${idx}" style="color: #d97706;">${item.ja_trans || "---"}</strong>
+         </div>
+         <div class="card text-center">
+            <h2>2. Activity / 学習内容</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+               <button class="btn btn-primary" onclick="showView('vocabulary')">📚 Words<br>単語</button>
+               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ Grammar<br>文法</button>
+            </div>
+         </div>
+      </div>
+      <div id="vocabulary-view" class="hidden">
+         <div class="card text-center">
+            <div><span class="badge" id="v-lvl-badge"></span><span class="badge" id="v-cat-badge" style="background:var(--accent-color)"></span></div>
+            <div id="v-emoji" style="font-size: 6rem; margin: 0px 0;"></div>
+            <div class="lang-row">
+               <div class="lang-label">English</div>
+               <div class="lang-text"><span id="v-en"></span><button class="btn-speak" onclick="speak('en')">🔊</button></div>
+            </div>
+            <div class="lang-row">
+               <div class="lang-label">Kiswahili</div>
+               <div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')">🔊</button></div>
+            </div>
+            <div class="lang-row">
+               <div class="lang-label">日本語</div>
+               <div class="lang-text"><span id="v-ja"></span><button class="btn-speak" onclick="speak('ja')">🔊</button></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px;">
+               <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
+               <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
+            </div>
+         </div>
+      </div>
+      <div id="grammar-choice-view" class="hidden">
+         <div class="card text-center">
+            <h2>文法レベルを選んでください</h2>
+            <div style="display: grid; gap: 10px; margin-top: 20px;">
+               <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">初級文法</button>
+               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="setLevel('Intermediate'); showView('grammar')">中級文法</button>
+               <button class="btn btn-primary" style="background-color: var(--accent-color);" onclick="setLevel('Advanced'); showView('grammar')">上級文法</button>
+               <button class="btn" style="background: #e2e8f0; margin-top: 10px;" onclick="showView('home')">戻る</button>
+            </div>
+         </div>
+      </div>
+      <div id="grammar-view" class="hidden">
+         <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+               <button class="btn" style="padding: 5px 15px; background: #e2e8f0;" onclick="showView('grammar-choice')">← 戻る</button>
+               <span class="badge" id="g-lvl-badge"></span>
+            </div>
+            <div id="grammar-list">
+            </div>
+         </div>
+      </div>
+   </main>
+   <script>
+      // --- 単語データ ---
+      const vocabularyData = [
+        { en: "Family", sw: "Familia", ja: "家族(かぞく)", emoji: "👨‍👩‍👧‍👦", level: "Beginner", category: "Life" },
+        { en: "Home", sw: "Nyumba", ja: "家(いえ)", emoji: "🏠", level: "Beginner", category: "Life" },
+        { en: "Kitchen", sw: "Jiko", ja: "台所(だいどころ)", emoji: "🍳", level: "Beginner", category: "Life" },
+        { en: "Window", sw: "Dirisha", ja: "窓(まど)", emoji: "🪟", level: "Beginner", category: "Life" },
+        { en: "Door", sw: "Mlango", ja: "扉(とびら)", emoji: "🚪", level: "Beginner", category: "Life" },
+        { en: "Soap", sw: "Sabuni", ja: "石鹸(せっけん)", emoji: "🧼", level: "Beginner", category: "Life" },
+        { en: "Towel", sw: "Taulo", ja: "タオル(たおる)", emoji: "🧣", level: "Beginner", category: "Life" },
+        { en: "Bed", sw: "Kitanda", ja: "寝台(べっど)", emoji: "🛏️", level: "Beginner", category: "Life" },
+        { en: "Key", sw: "Ufunguo", ja: "鍵(かぎ)", emoji: "🔑", level: "Beginner", category: "Life" },
+        { en: "Money", sw: "Pesa", ja: "お金(おかね)", emoji: "💰", level: "Beginner", category: "Life" },
+        { en: "Teacher", sw: "Mwalimu", ja: "先生(せんせい)", emoji: "🧑‍🏫", level: "Beginner", category: "School" },
+        { en: "Student", sw: "Mwanafunzi", ja: "生徒(せいと)", emoji: "🧑‍🎓", level: "Beginner", category: "School" },
+        { en: "Classroom", sw: "Darasa", ja: "教室(きょうしつ)", emoji: "🏫", level: "Beginner", category: "School" },
+        { en: "Desk", sw: "Dawati", ja: "机(つくえ)", emoji: "🪑", level: "Beginner", category: "School" },
+        { en: "Paper", sw: "Karatasi", ja: "紙(かみ)", emoji: "📄", level: "Beginner", category: "School" },
+        { en: "Pencil", sw: "Penseli", ja: "鉛筆(えんぴつ)", emoji: "✏️", level: "Beginner", category: "School" },
+        { en: "Eraser", sw: "Raba", ja: "消しゴム(けしごむ)", emoji: "🧽", level: "Beginner", category: "School" },
+        { en: "Bag", sw: "Mkoba", ja: "鞄(かばん)", emoji: "🎒", level: "Beginner", category: "School" },
+        { en: "Friend", sw: "Rafiki", ja: "友達(ともだち)", emoji: "🤝", level: "Beginner", category: "School" },
+        { en: "Homework", sw: "Kazi ya nyumbani", ja: "宿題(しゅくだい)", emoji: "📝", level: "Beginner", category: "School" },
+        { en: "Rice", sw: "Wali", ja: "ご飯(ごはん)", emoji: "🍚", level: "Beginner", category: "Food" },
+        { en: "Bread", sw: "Mkate", ja: "パン(ぱん)", emoji: "🍞", level: "Beginner", category: "Food" },
+        { en: "Egg", sw: "Yai", ja: "卵(たまご)", emoji: "🥚", level: "Beginner", category: "Food" },
+        { en: "Meat", sw: "Nyama", ja: "肉(にく)", emoji: "🍖", level: "Beginner", category: "Food" },
+        { en: "Vegetable", sw: "Mboga", ja: "野菜(野菜)", emoji: "🥦", level: "Beginner", category: "Food" },
+        { en: "Fruit", sw: "Tunda", ja: "果物(くだもの)", emoji: "🍎", level: "Beginner", category: "Food" },
+        { en: "Tea", sw: "Chai", ja: "茶(ちゃ)", emoji: "🍵", level: "Beginner", category: "Food" },
+        { en: "Milk", sw: "Maziwa", ja: "牛乳(ぎゅうにゅう)", emoji: "🥛", level: "Beginner", category: "Food" },
+        { en: "Salt", sw: "Chumvi", ja: "塩(しお)", emoji: "🧂", level: "Beginner", category: "Food" },
+        { en: "Sugar", sw: "Sukari", ja: "砂糖(さとう)", emoji: "🍬", level: "Beginner", category: "Food" },
+        { en: "Body", sw: "Mwili", ja: "体(からだ)", emoji: "🧍", level: "Beginner", category: "Body" },
+        { en: "Head", sw: "Kichwa", ja: "頭(あたま)", emoji: "🙆", level: "Beginner", category: "Body" },
+        { en: "Face", sw: "Uso", ja: "顔(かお)", emoji: "😊", level: "Beginner", category: "Body" },
+        { en: "Hair", sw: "Nywele", ja: "髪(かみ)", emoji: "💇", level: "Beginner", category: "Body" },
+        { en: "Eye", sw: "Jicho", ja: "目(め)", emoji: "👁️", level: "Beginner", category: "Body" },
+        { en: "Ear", sw: "Sikio", ja: "耳(みみ)", emoji: "👂", level: "Beginner", category: "Body" },
+        { en: "Nose", sw: "Pua", ja: "鼻(はな)", emoji: "👃", level: "Beginner", category: "Body" },
+        { en: "Mouth", sw: "Kinywa", ja: "口(くち)", emoji: "👄", level: "Beginner", category: "Body" },
+        { en: "Tooth", sw: "Jino", ja: "歯(は)", emoji: "🦷", level: "Beginner", category: "Body" },
+        { en: "Arm", sw: "Mkono", ja: "腕(うで)", emoji: "💪", level: "Beginner", category: "Body" },
+        { en: "Leg", sw: "Mguu", ja: "脚(あし)", emoji: "🦵", level: "Beginner", category: "Body" },
+        { en: "Heart", sw: "Moyo", ja: "心臓(しんぞう)", emoji: "❤️", level: "Beginner", category: "Body" },
+        { en: "Sun", sw: "Jua", ja: "太陽(たいよう)", emoji: "☀️", level: "Beginner", category: "Nature" },
+        { en: "Moon", sw: "Mwezi", ja: "月(つき)", emoji: "🌙", level: "Beginner", category: "Nature" },
+        { en: "Star", sw: "Nyota", ja: "星(ほし)", emoji: "⭐", level: "Beginner", category: "Nature" },
+        { en: "Sky", sw: "Mbingu", ja: "空(そら)", emoji: "☁️", level: "Beginner", category: "Nature" },
+        { en: "Rain", sw: "Mvua", ja: "雨(あめ)", emoji: "☔", level: "Beginner", category: "Nature" },
+        { en: "Wind", sw: "Upepo", ja: "風(かぜ)", emoji: "🌬️", level: "Beginner", category: "Nature" },
+        { en: "Flower", sw: "Ua", ja: "花(はな)", emoji: "🌻", level: "Beginner", category: "Nature" },
+        { en: "Mountain", sw: "Mlima", ja: "山(やま)", emoji: "⛰️", level: "Beginner", category: "Nature" },
+        { en: "River", sw: "Mto", ja: "川(かわ)", emoji: "🏞️", level: "Beginner", category: "Nature" },
+        { en: "Earth", sw: "Dunia", ja: "地球(ちきゅう)", emoji: "🌍", level: "Beginner", category: "Nature" },
+        { en: "Animal", sw: "Mnyama", ja: "動物(どうぶつ)", emoji: "🐾", level: "Beginner", category: "Animal" },
+        { en: "Dog", sw: "Mbwa", ja: "犬(いぬ)", emoji: "🐶", level: "Beginner", category: "Animal" },
+        { en: "Cat", sw: "Paka", ja: "猫(ねこ)", emoji: "🐱", level: "Beginner", category: "Animal" },
+        { en: "Bird", sw: "Ndege", ja: "鳥(とり)", emoji: "🐦", level: "Beginner", category: "Animal" },
+        { en: "Elephant", sw: "Tembo", ja: "象(ぞう)", emoji: "🐘", level: "Beginner", category: "Animal" },
+        { en: "Lion", sw: "Simba", ja: "獅子(しし)", emoji: "🦁", level: "Beginner", category: "Animal" },
+        { en: "Giraffe", sw: "Twiga", ja: "麒麟(きりん)", emoji: "🦒", level: "Beginner", category: "Animal" },
+        { en: "Snake", sw: "Nyoka", ja: "蛇(へび)", emoji: "🐍", level: "Beginner", category: "Animal" },
+        { en: "Fish", sw: "Samaki", ja: "魚(さかな)", emoji: "🐟", level: "Beginner", category: "Animal" },
+        { en: "Bee", sw: "Nyuki", ja: "蜂(はち)", emoji: "🐝", level: "Beginner", category: "Animal" },
+        { en: "Car", sw: "Gari", ja: "車(くるま)", emoji: "🚗", level: "Beginner", category: "Town" },
+        { en: "Bicycle", sw: "Baiskeli", ja: "自転車(じてんしゃ)", emoji: "🚲", level: "Beginner", category: "Town" },
+        { en: "Bus", sw: "Basi", ja: "バス(ばす)", emoji: "🚌", level: "Beginner", category: "Town" },
+        { en: "Market", sw: "Soko", ja: "市場(いちば)", emoji: "🛒", level: "Beginner", category: "Town" },
+        { en: "Hospital", sw: "Hospitali", ja: "病院(びょういん)", emoji: "🏥", level: "Beginner", category: "Town" },
+        { en: "Road", sw: "Barabara", ja: "道路(どうろ)", emoji: "🛣️", level: "Beginner", category: "Town" },
+        { en: "Bridge", sw: "Daraja", ja: "橋(はし)", emoji: "🌉", level: "Beginner", category: "Town" },
+        { en: "Clothes", sw: "Nguo", ja: "服(ふく)", emoji: "👕", level: "Beginner", category: "Town" },
+        { en: "Shoe", sw: "Kiatu", ja: "靴(くつ)", emoji: "👟", level: "Beginner", category: "Town" },
+        { en: "Hat", sw: "Kofia", ja: "帽子(ぼうし)", emoji: "👒", level: "Beginner", category: "Town" },
+        { en: "Today", sw: "Leo", ja: "今日(きょう)", emoji: "📅", level: "Beginner", category: "Time" },
+        { en: "Now", sw: "Sasa", ja: "今(いま)", emoji: "⏰", level: "Beginner", category: "Time" },
+        { en: "Day", sw: "Mchana", ja: "昼(ひる)", emoji: "☀️", level: "Beginner", category: "Time" },
+        { en: "Night", sw: "Usiku", ja: "夜(よる)", emoji: "🌙", level: "Beginner", category: "Time" },
+        { en: "Morning", sw: "Asubuhi", ja: "朝(あさ)", emoji: "🌅", level: "Beginner", category: "Time" },
+        { en: "Sunday", sw: "Jumapili", ja: "日曜日(にちようび)", emoji: "⛪", level: "Beginner", category: "Time" },
+        { en: "Monday", sw: "Jumatatu", ja: "月曜日(げつようび)", emoji: "🌙", level: "Beginner", category: "Time" },
+        { en: "Summer", sw: "Kiangazi", ja: "夏(なつ)", emoji: "🌻", level: "Beginner", category: "Time" },
+        { en: "Winter", sw: "Kipupwe", ja: "冬(ふゆ)", emoji: "❄️", level: "Beginner", category: "Time" },
+        { en: "Red", sw: "Nyekundu", ja: "赤(あか)", emoji: "🔴", level: "Beginner", category: "Color" },
+        { en: "Blue", sw: "Buluu", ja: "青(あお)", emoji: "🔵", level: "Beginner", category: "Color" },
+        { en: "Green", sw: "Kijani", ja: "緑(みどり)", emoji: "🟢", level: "Beginner", category: "Color" },
+        { en: "Yellow", sw: "Njano", ja: "黄色(きいろ)", emoji: "🟡", level: "Beginner", category: "Color" },
+        { en: "White", sw: "Nyeupe", ja: "白(しろ)", emoji: "⚪", level: "Beginner", category: "Color" },
+        { en: "Black", sw: "Nyeusi", ja: "黒(くろ)", emoji: "⚫", level: "Beginner", category: "Color" },
+        { en: "One", sw: "Moja", ja: "一(いち)", emoji: "1️⃣", level: "Beginner", category: "Number" },
+        { en: "Five", sw: "Tano", ja: "五(ご)", emoji: "5️⃣", level: "Beginner", category: "Number" },
+        { en: "Ten", sw: "Kumi", ja: "十(じゅう)", emoji: "🔟", level: "Beginner", category: "Number" },
+        { en: "Good", sw: "Nzuri", ja: "良い(よい)", emoji: "👍", level: "Beginner", category: "Action" },
+        { en: "Bad", sw: "Mbaya", ja: "悪い(わるい)", emoji: "👎", level: "Beginner", category: "Action" },
+        { en: "Big", sw: "Kubwa", ja: "大きい(おおきい)", emoji: "🐘", level: "Beginner", category: "Action" },
+        { en: "Small", sw: "Ndogo", ja: "小さい(ちいさい)", emoji: "🐜", level: "Beginner", category: "Action" },
+        { en: "Happy", sw: "Heri", ja: "幸せ(しあわせ)", emoji: "😊", level: "Beginner", category: "Action" },
+        { en: "Hot", sw: "Moto", ja: "熱い(あつい)", emoji: "🔥", level: "Beginner", category: "Action" },
+        { en: "Cold", sw: "Baridi", ja: "寒い(さむい)", emoji: "❄️", level: "Beginner", category: "Action" },
+        { en: "Walk", sw: "Tembea", ja: "歩く(あるく)", emoji: "🚶", level: "Beginner", category: "Action" },
+        { en: "Run", sw: "Kimbia", ja: "走る(はしる)", emoji: "🏃", level: "Beginner", category: "Action" },
+        { en: "Play", sw: "Cheza", ja: "遊ぶ(あそぶ)", emoji: "🎮", level: "Beginner", category: "Action" },
+        { en: "Experience", sw: "Uzoefu", ja: "経験(けいけん)", emoji: "🧪", level: "Intermediate", category: "Abstract" },
+        { en: "Government", sw: "Serikali", ja: "政府(せいふ)", emoji: "🏛️", level: "Intermediate", category: "Society" },
+        { en: "Economy", sw: "Uchumi", ja: "経済(けいざい)", emoji: "💹", level: "Intermediate", category: "Society" },
+        { en: "Environment", sw: "Mazingira", ja: "環境(かんきょう)", emoji: "🌳", level: "Intermediate", category: "Nature" },
+        { en: "Education", sw: "Elimu", ja: "教育(きょういく)", emoji: "🎓", level: "Intermediate", category: "School" },
+        { en: "Library", sw: "Maktaba", ja: "図書館(としょかん)", emoji: "📚", level: "Intermediate", category: "Place" },
+        { en: "Experiment", sw: "Jaribio", ja: "実験(じっけん)", emoji: "🧪", level: "Intermediate", category: "Science" },
+        { en: "History", sw: "Historia", ja: "歴史(れきし)", emoji: "📜", level: "Intermediate", category: "School" },
+        { en: "Future", sw: "Mustakabali", ja: "未来(みらい)", emoji: "🚀", level: "Intermediate", category: "Time" },
+        { en: "Dream", sw: "Ndoto", ja: "夢(ゆめ)", emoji: "💭", level: "Intermediate", category: "Abstract" },
+        { en: "Information", sw: "Habari", ja: "情報(じょうほう)", emoji: "ℹ️", level: "Intermediate", category: "Daily" },
+        { en: "Technology", sw: "Teknolojia", ja: "技術(ぎじゅつ)", emoji: "💻", level: "Intermediate", category: "Science" },
+        { en: "Invention", sw: "Uvumbuzi", ja: "発明(はつめい)", emoji: "💡", level: "Intermediate", category: "Science" },
+        { en: "Opportunity", sw: "Fursa", ja: "機会(きかい)", emoji: "🔑", level: "Intermediate", category: "Abstract" },
+        { en: "Relationship", sw: "Uhusiano", ja: "関係(かんけい)", emoji: "👩‍❤️‍👨", level: "Intermediate", category: "People" },
+        { en: "Culture", sw: "Utamaduni", ja: "文化(ぶんか)", emoji: "👘", level: "Intermediate", category: "Society" },
+        { en: "Tradition", sw: "Mila", ja: "伝統(でんとう)", emoji: "🏮", level: "Intermediate", category: "Society" },
+        { en: "Effort", sw: "Juhudi", ja: "努力(どりょく)", emoji: "🔥", level: "Intermediate", category: "Abstract" },
+        { en: "Success", sw: "Mafanikio", ja: "成功(せいこう)", emoji: "🏆", level: "Intermediate", category: "Abstract" },
+        { en: "Challenge", sw: "Changamoto", ja: "挑戦(ちょうせん)", emoji: "🧗", level: "Intermediate", category: "Abstract" },
+        { en: "Medicine", sw: "Dawa", ja: "薬(くすり)", emoji: "💊", level: "Intermediate", category: "Health" },
+        { en: "Health", sw: "Afya", ja: "健康(けんこう)", emoji: "🥗", level: "Intermediate", category: "Health" },
+        { en: "Volunteer", sw: "Mjitoleaji", ja: "志願者(しがんしゃ)", emoji: "🙋", level: "Intermediate", category: "People" },
+        { en: "Election", sw: "Uchaguzi", ja: "選挙(せんきょ)", emoji: "🗳️", level: "Intermediate", category: "Society" },
+        { en: "Passport", sw: "Pasipoti", ja: "旅券(りょけん)", emoji: "🛂", level: "Intermediate", category: "Travel" },
+        { en: "Airport", sw: "Uwanja wa ndege", ja: "空港(くうこう)", emoji: "✈️", level: "Intermediate", category: "Travel" },
+        { en: "Currency", sw: "Sarafu", ja: "通貨(つうか)", emoji: "💴", level: "Intermediate", category: "Economy" },
+        { en: "Message", sw: "Ujumbe", ja: "伝言(でんごん)", emoji: "📩", level: "Intermediate", category: "Daily" },
+        { en: "Celebrate", sw: "Sherehekea", ja: "祝う(いわう)", emoji: "🎉", level: "Intermediate", category: "Action" },
+        { en: "Develop", sw: "Endeleza", ja: "発展させる(はってんさせる)", emoji: "🏗️", level: "Intermediate", category: "Action" },
+        { en: "Global", sw: "Ulimwengu", ja: "地球規模の(ちきゅうきぼの)", emoji: "🌐", level: "Intermediate", category: "Nature" },
+        { en: "Freedom", sw: "Uhuru", ja: "自由(じゆう)", emoji: "🕊️", level: "Intermediate", category: "Abstract" },
+        { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Intermediate", category: "Society" },
+        { en: "Signal", sw: "Ishara", ja: "信号(しんごう)", emoji: "🚥", level: "Intermediate", category: "Town" },
+        { en: "Journey", sw: "Safari", ja: "旅(たび)", emoji: "🧳", level: "Intermediate", category: "Travel" },
+        { en: "Destination", sw: "Mwisho wa safari", ja: "目的地(もくてきち)", emoji: "📍", level: "Intermediate", category: "Travel" },
+        { en: "Discovery", sw: "Ugunduzi", ja: "発見(はっけん)", emoji: "🔎", level: "Intermediate", category: "Science" },
+        { en: "Energy", sw: "Nishati", ja: "エネルギー", emoji: "⚡", level: "Intermediate", category: "Science" },
+        { en: "Climate", sw: "Tabianchi", ja: "気候(きこう)", emoji: "🌡️", level: "Intermediate", category: "Nature" },
+        { en: "Ocean", sw: "Bahari", ja: "海洋(かいよう)", emoji: "🌊", level: "Intermediate", category: "Nature" },
+        { en: "Forest", sw: "Msitu", ja: "森(もり)", emoji: "🌲", level: "Intermediate", category: "Nature" },
+        { en: "Agriculture", sw: "Kilimo", ja: "農業(のうぎょう)", emoji: "🚜", level: "Intermediate", category: "Life" },
+        { en: "Industry", sw: "Viwanda", ja: "産業(さんぎょう)", emoji: "🏭", level: "Intermediate", category: "Society" },
+        { en: "Trade", sw: "Biashara", ja: "貿易(ぼうえき)", emoji: "🚢", level: "Intermediate", category: "Economy" },
+        { en: "Communication", sw: "Mawasiliano", ja: "通信(つうしん)", emoji: "📡", level: "Intermediate", category: "Tech" },
+        { en: "Internet", sw: "Mtandao", ja: "インターネット", emoji: "🌐", level: "Intermediate", category: "Tech" },
+        { en: "Software", sw: "Programu", ja: "ソフトウェア", emoji: "💿", level: "Intermediate", category: "Tech" },
+        { en: "Electric", sw: "Umeme", ja: "電気の(でんきの)", emoji: "💡", level: "Intermediate", category: "Tech" },
+        { en: "Modern", sw: "Kisasa", ja: "現代的な(げんだいてきな)", emoji: "🏙️", level: "Intermediate", category: "Time" },
+        { en: "Traditional", sw: "Kiasili", ja: "伝統的な(でんとうてきな)", emoji: "🎍", level: "Intermediate", category: "Society" },
+        { en: "Citizen", sw: "Raia", ja: "国民(こくみん)", emoji: "👥", level: "Intermediate", category: "Society" },
+        { en: "Leader", sw: "Kiongozi", ja: "指導者(しどうしゃ)", emoji: "👑", level: "Intermediate", category: "People" },
+        { en: "Peace", sw: "Amani", ja: "平和(へいわ)", emoji: "☮️", level: "Intermediate", category: "Abstract" },
+        { en: "Conflict", sw: "Migogoro", ja: "紛争(ふんそう)", emoji: "⚔️", level: "Intermediate", category: "Society" },
+        { en: "Solution", sw: "Suluhisho", ja: "解決策(かいけつさく)", emoji: "✅", level: "Intermediate", category: "Abstract" },
+        { en: "Problem", sw: "Tatizo", ja: "問題(もんだい)", emoji: "❓", level: "Intermediate", category: "Abstract" },
+        { en: "Knowledge", sw: "Maarifa", ja: "知識(ちしき)", emoji: "📖", level: "Intermediate", category: "Academic" },
+        { en: "Skill", sw: "Ujuzi", ja: "技能(ぎのう)", emoji: "🛠️", level: "Intermediate", category: "Academic" },
+        { en: "Confidence", sw: "Kujiamini", ja: "自信(じしん)", emoji: "💪", level: "Intermediate", category: "Abstract" },
+      { en: "Creativity", sw: "Ubunifu", ja: "創造性(そうぞうせい)", emoji: "🎨", level: "Intermediate", category: "Abstract" },
+        { en: "Strategy", sw: "Mbinu", ja: "戦略(せんりゃく)", emoji: "🎯", level: "Intermediate", category: "Business" },
+        { en: "Investment", sw: "Uwekezaji", ja: "投資(とうし)", emoji: "📈", level: "Intermediate", category: "Economy" },
+        { en: "Production", sw: "Uzalishaji", ja: "生産(せいさん)", emoji: "🏭", level: "Intermediate", category: "Industry" },
+        { en: "Quality", sw: "Ubora", ja: "品質(ひんしつ)", emoji: "⭐", level: "Intermediate", category: "Business" },
+        { en: "Quantity", sw: "Kiasi", ja: "量(りょう)", emoji: "🔢", level: "Intermediate", category: "Business" },
+        { en: "Resource", sw: "Rasilimali", ja: "資源(しげん)", emoji: "💎", level: "Intermediate", category: "Nature" },
+        { en: "Environment", sw: "Mazingira", ja: "環境(かんきょう)", emoji: "🍃", level: "Intermediate", category: "Nature" },
+        { en: "Conservation", sw: "Uhifadhi", ja: "保護(ほご)", emoji: "🛡️", level: "Intermediate", category: "Nature" },
+        { en: "Pollution", sw: "Uchafuzi", ja: "汚染(おせん)", emoji: "💨", level: "Intermediate", category: "Nature" },
+        { en: "Atmosphere", sw: "Angahewa", ja: "大気(たいき)", emoji: "☁️", level: "Intermediate", category: "Nature" },
+        { en: "Space", sw: "Nafasi", ja: "宇宙(うちゅう)", emoji: "🚀", level: "Intermediate", category: "Science" },
+        { en: "Planet", sw: "Sayari", ja: "惑星(わくせい)", emoji: "🪐", level: "Intermediate", category: "Science" },
+        { en: "Research", sw: "Utafiti", ja: "研究(けんきゅう)", emoji: "🧪", level: "Intermediate", category: "Academic" },
+        { en: "Analysis", sw: "Uchambuzi", ja: "分析(ぶんせき)", emoji: "📊", level: "Intermediate", category: "Academic" },
+        { en: "Evidence", sw: "Ushahidi", ja: "証拠(しょうこ)", emoji: "🕵️", level: "Intermediate", category: "Science" },
+        { en: "Logic", sw: "Mantiki", ja: "論理(ろんり)", emoji: "🧠", level: "Intermediate", category: "Academic" },
+        { en: "Definition", sw: "Tafsiri", ja: "定義(ていぎ)", emoji: "📖", level: "Intermediate", category: "Academic" },
+        { en: "Purpose", sw: "Kusudi", ja: "目的(もくてき)", emoji: "🚩", level: "Intermediate", category: "Abstract" },
+        { en: "Benefit", sw: "Faida", ja: "利益(りえき)", emoji: "🎁", level: "Intermediate", category: "Abstract" },
+        { en: "Disadvantage", sw: "Hasara", ja: "欠点(けってん)", emoji: "⚠️", level: "Intermediate", category: "Abstract" },
+        { en: "Success", sw: "Mafanikio", ja: "成功(せいこう)", emoji: "🏆", level: "Intermediate", category: "Abstract" },
+        { en: "Failure", sw: "Kushindwa", ja: "失敗(しっぱい)", emoji: "❌", level: "Intermediate", category: "Abstract" },
+        { en: "Improvement", sw: "Uboreshaji", ja: "改善(かいぜん)", emoji: "🆙", level: "Intermediate", category: "Abstract" },
+        { en: "Development", sw: "Maendeleo", ja: "開発(かいはつ)", emoji: "🏗️", level: "Intermediate", category: "Industry" },
+        { en: "Construction", sw: "Ujenzi", ja: "建設(けんせつ)", emoji: "🚜", level: "Intermediate", category: "Industry" },
+        { en: "Transport", sw: "Usafiri", ja: "輸送(ゆそう)", emoji: "🚚", level: "Intermediate", category: "Town" },
+        { en: "Safety", sw: "Usalama", ja: "安全(あんぜん)", emoji: "⛑️", level: "Intermediate", category: "Life" },
+        { en: "Health", sw: "Afya", ja: "健康(けんこう)", emoji: "🏥", level: "Intermediate", category: "Life" },
+        { en: "Disease", sw: "Ugonjwa", ja: "病気(びょうき)", emoji: "🤒", level: "Intermediate", category: "Life" },
+        { en: "Prevention", sw: "Kinga", ja: "予防(よぼう)", emoji: "🛡️", level: "Intermediate", category: "Life" },
+        { en: "Culture", sw: "Utamaduni", ja: "文化(ぶんか)", emoji: "🎭", level: "Intermediate", category: "Society" },
+        { en: "Language", sw: "Lugha", ja: "言語(げんご)", emoji: "🗣️", level: "Intermediate", category: "Society" },
+        { en: "Literature", sw: "Fasihi", ja: "文学(ぶんがく)", emoji: "📚", level: "Intermediate", category: "Society" },
+        { en: "Religion", sw: "Dini", ja: "宗教(しゅうきょう)", emoji: "🕍", level: "Intermediate", category: "Society" },
+        { en: "Politics", sw: "Siasa", ja: "政治(せいじ)", emoji: "🗳️", level: "Intermediate", category: "Society" },
+        { en: "Economy", sw: "Uchumi", ja: "経済(けいざい)", emoji: "💹", level: "Intermediate", category: "Society" },
+        { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Intermediate", category: "Society" },
+        { en: "Responsibility", sw: "Wajibu", ja: "責任(せきにん)", emoji: "🤝", level: "Intermediate", category: "Abstract" },
+        { en: "Community", sw: "Jumuiya", ja: "地域社会(ちいきしゃかい)", emoji: "🏘️", level: "Intermediate", category: "Society" },
+      { en: "Philosophy", sw: "Falsafa", ja: "哲学(てつがく)", emoji: "🧐", level: "Advanced", category: "Academic" },
+        { en: "Architecture", sw: "Usanifu", ja: "建築(けんちく)", emoji: "🏛️", level: "Advanced", category: "Art" },
+        { en: "Constitution", sw: "Katiba", ja: "憲法(けんぽう)", emoji: "📜", level: "Advanced", category: "Law" },
+        { en: "Innovation", sw: "Ubunifu", ja: "革新(かくしん)", emoji: "🚀", level: "Advanced", category: "Tech" },
+        { en: "Sustainability", sw: "Uendelevu", ja: "持続可能性(じぞくかのうせい)", emoji: "♻️", level: "Advanced", category: "Environment" },
+        { en: "Democracy", sw: "Demokrasia", ja: "民主主義(みんしゅしゅぎ)", emoji: "🗳️", level: "Advanced", category: "Society" },
+        { en: "Artificial Intelligence", sw: "Akili mnemba", ja: "人工知能(じんこうちのう)", emoji: "🤖", level: "Advanced", category: "Tech" },
+        { en: "Global Warming", sw: "Ongezeko la joto duniani", ja: "地球温暖化(ちきゅうおんだんか)", emoji: "🌡️", level: "Advanced", category: "Environment" },
+        { en: "Diversity", sw: "Anuai", ja: "多様性(たようせい)", emoji: "🌈", level: "Advanced", category: "Society" },
+        { en: "Psychology", sw: "Saikolojia", ja: "心理学(しんりがく)", emoji: "🧠", level: "Advanced", category: "Academic" },
+        { en: "Ethics", sw: "Maadili", ja: "倫理(りんり)", emoji: "⚖️", level: "Advanced", category: "Philosophy" },
+        { en: "Hypothesis", sw: "Nadharia tete", ja: "仮説(かせつ)", emoji: "🧪", level: "Advanced", category: "Science" },
+        { en: "Quantum", sw: "Kwanta", ja: "量子(りょうし)", emoji: "⚛️", level: "Advanced", category: "Science" },
+        { en: "Evolution", sw: "Mageuzi", ja: "進化(しんか)", emoji: "🐒", level: "Advanced", category: "Science" },
+        { en: "Infrastructure", sw: "Miundombinu", ja: "社会基盤(いんふら)", emoji: "🏗️", level: "Advanced", category: "Town" },
+        { en: "Negotiation", sw: "Majadiliano", ja: "交渉(こうしょう)", emoji: "🤝", level: "Advanced", category: "Business" },
+        { en: "Investment", sw: "Uwekezaji", ja: "投資(とうし)", emoji: "💰", level: "Advanced", category: "Economy" },
+        { en: "Bureaucracy", sw: "Urasimu", ja: "官僚制度(かんりょうせいど)", emoji: "🏢", level: "Advanced", category: "Society" },
+        { en: "Human Rights", sw: "Haki za binadamu", ja: "人権(じんけん)", emoji: "🕊️", level: "Advanced", category: "Law" },
+        { en: "Sovereignty", sw: "Enzi", ja: "主権(しゅけん)", emoji: "👑", level: "Advanced", category: "Law" },
+        { en: "Paradox", sw: "Kitendawili", ja: "逆説(ぱらどっくす)", emoji: "🌀", level: "Advanced", category: "Philosophy" },
+        { en: "Intuition", sw: "Mvuto wa ndani", ja: "直感(ちょっかん)", emoji: "⚡", level: "Advanced", category: "Abstract" },
+        { en: "Consciousness", sw: "Ufahamu", ja: "意識(いしき)", emoji: "👁️", level: "Advanced", category: "Abstract" },
+        { en: "Aesthetics", sw: "Urembo wa kisanaa", ja: "美学(びがく)", emoji: "🖼️", level: "Advanced", category: "Art" },
+        { en: "Renaissance", sw: "Mwamko mpya", ja: "ルネサンス", emoji: "🎨", level: "Advanced", category: "History" },
+        { en: "Diplomacy", sw: "Diplomasia", ja: "外交(がいこう)", emoji: "🌍", level: "Advanced", category: "Society" },
+        { en: "Sanction", sw: "Vikwazo", ja: "制裁(せいさい)", emoji: "🚫", level: "Advanced", category: "Society" },
+        { en: "Refugee", sw: "Mkimbizi", ja: "難民(なんみん)", emoji: "🏃", level: "Advanced", category: "Society" },
+        { en: "Migration", sw: "Uhamiaji", ja: "移住(いじゅう)", emoji: "✈️", level: "Advanced", category: "Society" },
+        { en: "Pandemic", sw: "Janga la kimataifa", ja: "世界的流行(ぱんでみっく)", emoji: "😷", level: "Advanced", category: "Health" },
+        { en: "Vaccine", sw: "Chanjo", ja: "ワクチン", emoji: "💉", level: "Advanced", category: "Health" },
+        { en: "Gene", sw: "Vinasaba", ja: "遺伝子(いでんし)", emoji: "🧬", level: "Advanced", category: "Science" },
+        { en: "Galaxy", sw: "Galaksi", ja: "銀河(ぎんが)", emoji: "🌌", level: "Advanced", category: "Science" },
+        { en: "Gravity", sw: "Vuta ya nchi", ja: "重力(じゅうりょく)", emoji: "🍎", level: "Advanced", category: "Science" },
+        { en: "Robot", sw: "Roboti", ja: "ロボット", emoji: "🤖", level: "Advanced", category: "Tech" },
+        { en: "Crypto", sw: "Siri", ja: "暗号(あんごう)", emoji: "🔐", level: "Advanced", category: "Tech" },
+        { en: "Privacy", sw: "Faragha", ja: "個人情報(ぷらいばしー)", emoji: "🛡️", level: "Advanced", category: "Tech" },
+        { en: "Copyright", sw: "Haki miliki", ja: "著作権(ちょさくけん)", emoji: "©️", level: "Advanced", category: "Law" },
+        { en: "Contract", sw: "Mkataba", ja: "契約(けいやく)", emoji: "📝", level: "Advanced", category: "Law" },
+        { en: "Witness", sw: "Shahidi", ja: "証人(しょうにん)", emoji: "🗣️", level: "Advanced", category: "Law" },
+        { en: "Inheritance", sw: "Urithi", ja: "相続(そうぞく)", emoji: "🎁", level: "Advanced", category: "Law" },
+        { en: "Metaphor", sw: "Istiara", ja: "隠喩(めたふぁー)", emoji: "📖", level: "Advanced", category: "Academic" },
+        { en: "Syntax", sw: "Sintaksi", ja: "構文(こうぶん)", emoji: "💻", level: "Advanced", category: "Academic" },
+        { en: "Algorithm", sw: "Algoriti", ja: "アルゴリズム", emoji: "🔢", level: "Advanced", category: "Tech" },
+        { en: "Strategy", sw: "Mkakati", ja: "戦略(せんりゃく)", emoji: "🎯", level: "Advanced", category: "Business" },
+        { en: "Profit", sw: "Faida", ja: "利益(りえき)", emoji: "📈", level: "Advanced", category: "Economy" },
+        { en: "Debt", sw: "Deni", ja: "負債(ふさい)", emoji: "📉", level: "Advanced", category: "Economy" },
+        { en: "Inflation", sw: "Mfumuko wa bei", ja: "インフレ", emoji: "🎈", level: "Advanced", category: "Economy" },
+        { en: "Entrepreneur", sw: "Mjasiriamali", ja: "起業家(きぎょうか)", emoji: "💼", level: "Advanced", category: "Business" },
+        { en: "Sustainability", sw: "Uendelevu", ja: "持続可能性", emoji: "🌱", level: "Advanced", category: "Environment" },
+      { en: "Galaxy", sw: "Kilimia", ja: "銀河(ぎんが)", emoji: "🌌", level: "Advanced", category: "Science" },
+        { en: "Atmosphere", sw: "Angahewa", ja: "大気(たいき)", emoji: "☁️", level: "Advanced", category: "Science" },
+        { en: "Exploration", sw: "Uvumbuzi", ja: "探検(たんけん)", emoji: "🧭", level: "Advanced", category: "Travel" },
+        { en: "Satellite", sw: "Satelaiti", ja: "人工衛星(じんこうえいせい)", emoji: "🛰️", level: "Advanced", category: "Tech" },
+        { en: "Microscope", sw: "Darubini kali", ja: "顕微鏡(けんびきょう)", emoji: "🔬", level: "Advanced", category: "Science" },
+        { en: "Telescope", sw: "Darubini", ja: "望遠鏡(ぼうえんきょう)", emoji: "🔭", level: "Advanced", category: "Science" },
+        { en: "Genetics", sw: "Jenetiki", ja: "遺伝学(いでんがく)", emoji: "🧬", level: "Advanced", category: "Science" },
+        { en: "Organism", sw: "Kiumbe", ja: "有機体(ゆうきたい)", emoji: "🦠", level: "Advanced", category: "Science" },
+        { en: "Evolution", sw: "Mageuzi", ja: "進化(しんか)", emoji: "🐒", level: "Advanced", category: "Science" },
+        { en: "Diversity", sw: "Anuwai", ja: "多様性(たようせい)", emoji: "🧩", level: "Advanced", category: "Society" },
+        { en: "Inclusion", sw: "Ujumuishaji", ja: "包括(ほうかつ)", emoji: "🤝", level: "Advanced", category: "Society" },
+        { en: "Justice", sw: "Haki", ja: "正義(せいぎ)", emoji: "⚖️", level: "Advanced", category: "Law" },
+        { en: "Regulation", sw: "Kanuni", ja: "規制(きせい)", emoji: "📝", level: "Advanced", category: "Law" },
+        { en: "Conflict", sw: "Migogoro", ja: "紛争(ふんそう)", emoji: "⚔️", level: "Advanced", category: "Society" },
+        { en: "Resolution", sw: "Utatuzi", ja: "解決(かいけつ)", emoji: "💡", level: "Advanced", category: "Abstract" },
+        { en: "Perspective", sw: "Mtazamo", ja: "観点(かんてん)", emoji: "👓", level: "Advanced", category: "Abstract" },
+        { en: "Philosophy", sw: "Falsafa", ja: "哲学(てつがく)", emoji: "📜", level: "Advanced", category: "Academic" },
+        { en: "Ethics", sw: "Maadili", ja: "倫理(りんり)", emoji: "😇", level: "Advanced", category: "Academic" },
+        { en: "Abstract", sw: "Kidhahania", ja: "抽象的(ちゅうしょうてき)", emoji: "🎨", level: "Advanced", category: "Abstract" },
+        { en: "Concept", sw: "Dhana", ja: "概念(がいねん)", emoji: "💡", level: "Advanced", category: "Abstract" },
+        { en: "Efficiency", sw: "Ufanisi", ja: "効率(こうりつ)", emoji: "⚡", level: "Advanced", category: "Business" },
+        { en: "Framework", sw: "Mfumo", ja: "枠組み(わくぐみ)", emoji: "🏗️", level: "Advanced", category: "Academic" },
+        { en: "Implementation", sw: "Utekelezaji", ja: "実行(じっこう)", emoji: "⚙️", level: "Advanced", category: "Business" },
+        { en: "Indicator", sw: "Kiashiria", ja: "指標(しひょう)", emoji: "📈", level: "Advanced", category: "Business" },
+        { en: "Maintenance", sw: "Matengenezo", ja: "保守(ほしゅ)", emoji: "🛠️", level: "Advanced", category: "Tech" },
+        { en: "Objective", sw: "Lengo", ja: "目標(もくひょう)", emoji: "🎯", level: "Advanced", category: "Abstract" },
+        { en: "Participation", sw: "Ushiriki", ja: "参加(さんか)", emoji: "🙋", level: "Advanced", category: "Society" },
+        { en: "Prevention", sw: "Kinga", ja: "予防(よぼう)", emoji: "🛡️", level: "Advanced", category: "Health" },
+        { en: "Procedure", sw: "Utaratibu", ja: "手順(てじゅん)", emoji: "📋", level: "Advanced", category: "Abstract" },
+        { en: "Recognition", sw: "Utambuzi", ja: "認識(にんしき)", emoji: "🧠", level: "Advanced", category: "Abstract" },
+        { en: "Reliability", sw: "Uaminifu", ja: "信頼性(しんらいせい)", emoji: "🤝", level: "Advanced", category: "Abstract" },
+        { en: "Resource", sw: "Rasilimali", ja: "資源(しげん)", emoji: "💎", level: "Advanced", category: "Economy" },
+        { en: "Standard", sw: "Kiwango", ja: "標準(ひょうじゅん)", emoji: "📏", level: "Advanced", category: "Abstract" },
+        { en: "Transformation", sw: "Mabadiliko", ja: "変革(へんかく)", emoji: "🦋", level: "Advanced", category: "Abstract" },
+        { en: "Transparency", sw: "Uwazi", ja: "透明性(とうめいせい)", emoji: "💎", level: "Advanced", category: "Society" },
+        { en: "Urbanization", sw: "Ukuaji wa miji", ja: "都市化(としか)", emoji: "🏙️", level: "Advanced", category: "Society" },
+        { en: "Validation", sw: "Uthibitisho", ja: "検証(けんしょう)", emoji: "✅", level: "Advanced", category: "Academic" },
+        { en: "Vulnerability", sw: "Mazingira hatarishi", ja: "脆弱性(ぜいじゃくせい)", emoji: "🐚", level: "Advanced", category: "Abstract" },
+        { en: "Welfare", sw: "Ustawi", ja: "福祉(ふくし)", emoji: "🏥", level: "Advanced", category: "Society" },
+        { en: "Architecture", sw: "Usanifu majengo", ja: "建築(けんちく)", emoji: "🏛️", level: "Advanced", category: "Art" },
+        { en: "Colleague", sw: "Mfanyakazi mwenzangu", ja: "同僚(どうりょう)", emoji: "💼", level: "Advanced", category: "People" },
+        { en: "Contribution", sw: "Mchango", ja: "貢献(こうけん)", emoji: "🤲", level: "Advanced", category: "Society" },
+        { en: "Description", sw: "Maelezo", ja: "記述(きじゅつ)", emoji: "📝", level: "Advanced", category: "Abstract" },
+        { en: "Evaluation", sw: "Tathmini", ja: "評価(ひょうか)", emoji: "📋", level: "Advanced", category: "Academic" },
+        { en: "Generation", sw: "Kizazi", ja: "世代(せだい)", emoji: "👪", level: "Advanced", category: "People" },
+        { en: "Heritage", sw: "Urithi", ja: "遺産(いさん)", emoji: "🏰", level: "Advanced", category: "Society" },
+        { en: "Motivation", sw: "Motisha", ja: "動機付け(もちべーしょん)", emoji: "🔥", level: "Advanced", category: "Abstract" },
+        { en: "Perspective", sw: "Mtazamo", ja: "遠近法/見方", emoji: "🖼️", level: "Advanced", category: "Art" },
+        { en: "Significant", sw: "Muhimu sana", ja: "重要な(じゅうような)", emoji: "⚠️", level: "Advanced", category: "Abstract" },
+        { en: "Substantial", sw: "Kikubwa", ja: "実質的な(じっしつてきな)", emoji: "📦", level: "Advanced", category: "Abstract" },
+      ];
+      
+      // --- 文法データ  ---
+      const grammarData = [
+        // --- 初級：Beginner (50件) ---
+        { title: "基本の挨拶", sw_phrase: "Habari gani?", en_phrase: "How are you?", ja_trans: "お元気ですか？", ja_explanation: "最も一般的な挨拶です。", level: "Beginner" },
+        { title: "元気な返事", sw_phrase: "Nzuri sana, asante!", en_phrase: "Very good, thank you!", ja_trans: "とても元気です、ありがとう！", ja_explanation: "Habari...? と聞かれた時の定番の答え方です。", level: "Beginner" },
+        { title: "自己紹介", sw_phrase: "Jina langu ni Yuki.", en_phrase: "My name is Yuki.", ja_trans: "私の名前はユキです。", ja_explanation: "Jina(名前) langu(私の) ni(〜です) という構成です。", level: "Beginner" },
+        { title: "出身を伝える", sw_phrase: "Ninatoka Japani.", en_phrase: "I am from Japan.", ja_trans: "日本から来ました。", ja_explanation: "Ni(私) na(現在) toka(出る) で出身を表します。", level: "Beginner" },
+        { title: "感謝の表現", sw_phrase: "Asante kwa chakula!", en_phrase: "Thank you for the food!", ja_trans: "食事をありがとう！", ja_explanation: "kwa(〜に対して) を使って具体的に感謝を伝えます。", level: "Beginner" },
+        { title: "丁寧なお願い", sw_phrase: "Nipe maji, tafadhali.", en_phrase: "Give me water, please.", ja_trans: "お水をください。", ja_explanation: "tafadhali(お願いします) は文末に置くと丁寧です。", level: "Beginner" },
+        { title: "現在進行形の質問", sw_phrase: "Unafanya nini sasa?", en_phrase: "What are you doing now?", ja_trans: "今、何をしているの？", ja_explanation: "U(あなた) na(現在) fanya(する) nini(何)？", level: "Beginner" },
+        { title: "現在進行形", sw_phrase: "Ninasoma Kiswahili.", en_phrase: "I am studying Swahili.", ja_trans: "私はスワヒリ語を勉強しています。", ja_explanation: "接頭辞 -na- が現在の動作を表します。", level: "Beginner" },
+        { title: "過去の出来事", sw_phrase: "Nilikula matunda jana.", en_phrase: "I ate fruit yesterday.", ja_trans: "昨日、フルーツを食べました。", ja_explanation: "接頭辞 -li- が過去を表します。janaは昨日。", level: "Beginner" },
+        { title: "未来の予定", sw_phrase: "Nitasafiri kesho.", en_phrase: "I will travel tomorrow.", ja_trans: "明日、旅行に行きます。", ja_explanation: "接頭辞 -ta- が未来を表します。keshoは明日。", level: "Beginner" },
+        { title: "否定の表現", sw_phrase: "Sijui Kiingereza.", en_phrase: "I don't know English.", ja_trans: "英語はわかりません。", ja_explanation: "Si- を文頭につけて否定にします。", level: "Beginner" },
+        { title: "場所を尋ねる", sw_phrase: "Soko liko wapi?", en_phrase: "Where is the market?", ja_trans: "市場はどこですか？", ja_explanation: "wapi(どこ) は文末に置くのが一般的です。", level: "Beginner" },
+        { title: "値段を尋ねる", sw_phrase: "Bei gani?", en_phrase: "How much is it?", ja_trans: "いくらですか？", ja_explanation: "買い物で最もよく使う便利な短縮表現です。", level: "Beginner" },
+        { title: "所有の表現", sw_phrase: "Nina kaka mmoja.", en_phrase: "I have one brother.", ja_trans: "私には兄（弟）が一人います。", ja_explanation: "Nina... で「私は〜を持っている」となります。", level: "Beginner" },
+        { title: "許可を求める", sw_phrase: "Naweza kuingia?", en_phrase: "Can I come in?", ja_trans: "入ってもいいですか？", ja_explanation: "weza(〜できる) を使って許可を尋ねます。", level: "Beginner" },
+        { title: "欲求を伝える", sw_phrase: "Nataka kununua hii.", en_phrase: "I want to buy this.", ja_trans: "これを買いたいです。", ja_explanation: "taka(〜したい) + ku-(動詞) の形です。", level: "Beginner" },
+        { title: "謝罪の表現", sw_phrase: "Samahani kwa kuchelewa.", en_phrase: "Sorry for being late.", ja_trans: "遅れてすみません。", ja_explanation: "Samahani は「すみません」の両方で使えます。", level: "Beginner" },
+        { title: "理解の確認", sw_phrase: "Umeelewa?", en_phrase: "Have you understood?", ja_trans: "わかりましたか？", ja_explanation: "完了を表す -me- を使った疑問文です。", level: "Beginner" },
+        { title: "はい / いいえ", sw_phrase: "Ndiyo, nimeelewa.", en_phrase: "Yes, I have understood.", ja_trans: "はい、わかりました。", ja_explanation: "Ndiyo(はい)、Hapana(いいえ) は基本です。", level: "Beginner" },
+        { title: "時間の表現", sw_phrase: "Sasa ni saa tatu.", en_phrase: "Now it is nine o'clock.", ja_trans: "今は（午前）9時です。", ja_explanation: "スワヒリ時間は日の出から数えます。", level: "Beginner" },
+        { title: "疲れを伝える", sw_phrase: "Nimechoka sana.", en_phrase: "I am very tired.", ja_trans: "とても疲れました。", ja_explanation: "-me- は今の状態も表します。", level: "Beginner" },
+        { title: "別れの挨拶", sw_phrase: "Tutaonana baadaye!", en_phrase: "See you later!", ja_trans: "またあとで会いましょう！", ja_explanation: "baadaye(あとで) を使った定番の言葉です。", level: "Beginner" },
+        { title: "天気の表現", sw_phrase: "Leo kuna jua.", en_phrase: "Today is sunny.", ja_trans: "今日は晴れています。", ja_explanation: "jua(太陽) が kuna(ある) という表現です。", level: "Beginner" },
+        { title: "道案内（右）", sw_phrase: "Geuka kulia.", en_phrase: "Turn right.", ja_trans: "右に曲がってください。", ja_explanation: "kulia(右)、kushoto(左) です。", level: "Beginner" },
+        { title: "同意する", sw_phrase: "Mimi pia!", en_phrase: "Me too!", ja_trans: "私もです！", ja_explanation: "pia(〜も) は便利な言葉です。", level: "Beginner" },
+        { title: "注文の表現", sw_phrase: "Nipe kahawa, tafadhali.", en_phrase: "Give me coffee, please.", ja_trans: "コーヒーをください。", ja_explanation: "お店などで物を注文する時の基本です。", level: "Beginner" },
+        { title: "手伝いの申し出", sw_phrase: "Naweza kukusaidia?", en_phrase: "Can I help you?", ja_trans: "何かお手伝いしましょうか？", ja_explanation: "ku-(あなたを) help(助ける) という構成です。", level: "Beginner" },
+        { title: "名前を聞く", sw_phrase: "Unaitwa nani?", en_phrase: "What is your name?", ja_trans: "お名前は何ですか？", ja_explanation: "「あなたは誰と呼ばれていますか？」です。", level: "Beginner" },
+        { title: "年齢を言う", sw_phrase: "Nina miaka ishirini.", en_phrase: "I am twenty years old.", ja_trans: "私は20歳です。", ja_explanation: "nina(持っている) miaka(年) を使います。", level: "Beginner" },
+        { title: "「好き」を伝える", sw_phrase: "Napenda chakula hiki.", en_phrase: "I like this food.", ja_trans: "この食べ物が好きです。", ja_explanation: "penda(好き) は人にも物にも使えます。", level: "Beginner" },
+        { title: "「嫌い」を伝える", sw_phrase: "Sipendi maziwa.", en_phrase: "I don't like milk.", ja_trans: "牛乳は好きではありません。", ja_explanation: "否定の接頭辞 Si- を使います。", level: "Beginner" },
+        { title: "友人を紹介する", sw_phrase: "Huyu ni rafiki yangu.", en_phrase: "This is my friend.", ja_trans: "こちらは私の友人です。", ja_explanation: "Huyu ni... で人を指して紹介します。", level: "Beginner" },
+        { title: "住んでいる場所", sw_phrase: "Ninaishi Tokyo.", en_phrase: "I live in Tokyo.", ja_trans: "私は東京に住んでいます。", ja_explanation: "ishi(住む) を使った表現です。", level: "Beginner" },
+        { title: "職業を言う", sw_phrase: "Mimi ni mwalimu.", en_phrase: "I am a teacher.", ja_trans: "私は教師です。", ja_explanation: "Mimi ni... の後ろに職業を入れます。", level: "Beginner" },
+        { title: "目的地を聞く", sw_phrase: "Unakwenda wapi?", en_phrase: "Where are you going?", ja_trans: "どこへ行くのですか？", ja_explanation: "行き先を尋ねるフレーズです。", level: "Beginner" },
+        { title: "帰宅の表現", sw_phrase: "Ninakwenda nyumbani.", en_phrase: "I am going home.", ja_trans: "家に帰ります。", ja_explanation: "nyumbani(家へ) は場所を表します。", level: "Beginner" },
+        { title: "飲み物の注文", sw_phrase: "Nataka maji baridi.", en_phrase: "I want cold water.", ja_trans: "冷たい水が欲しいです。", ja_explanation: "baridi(冷たい) は名詞の後に置きます。", level: "Beginner" },
+        { title: "熱い飲み物", sw_phrase: "Chai ya moto.", en_phrase: "Hot tea.", ja_trans: "熱いお茶。", ja_explanation: "moto(火/熱い) を使った表現です。", level: "Beginner" },
+        { title: "トイレの場所", sw_phrase: "Choo kiko wapi?", en_phrase: "Where is the toilet?", ja_trans: "トイレはどこですか？", ja_explanation: "旅先で最も重要な質問の一つです。", level: "Beginner" },
+        { title: "在庫の確認", sw_phrase: "Kuna matunda?", en_phrase: "Is there fruit?", ja_trans: "果物はありますか？", ja_explanation: "Kuna(〜がある) を使った疑問文です。", level: "Beginner" },
+        { title: "体調不良", sw_phrase: "Ninaumwa kichwa.", en_phrase: "I have a headache.", ja_trans: "頭が痛いです。", ja_explanation: "umwa(痛む) + 部位 で症状を伝えます。", level: "Beginner" },
+        { title: "薬を必要とする", sw_phrase: "Nahitaji dawa.", en_phrase: "I need medicine.", ja_trans: "薬が必要です。", ja_explanation: "hitaji(必要とする) を使います。", level: "Beginner" },
+        { title: "少し待つ", sw_phrase: "Subiri kidogo.", en_phrase: "Wait a little.", ja_trans: "ちょっと待ってください。", ja_explanation: "kidogo(少し) をつけると丁寧です。", level: "Beginner" },
+        { title: "完了の合図", sw_phrase: "Tayari!", en_phrase: "Ready! / Done!", ja_trans: "できました！ / 準備完了！", ja_explanation: "終わった時に使います。", level: "Beginner" },
+        { title: "再会の約束", sw_phrase: "Tutaonana kesho.", en_phrase: "See you tomorrow.", ja_trans: "また明日会いましょう。", ja_explanation: "kesho(明日) を使った挨拶です。", level: "Beginner" },
+        { title: "お祝い", sw_phrase: "Hongera sana!", en_phrase: "Congratulations!", ja_trans: "おめでとうございます！", ja_explanation: "成功を祝う時に使います。", level: "Beginner" },
+        { title: "幸運を祈る", sw_phrase: "Kila la heri!", en_phrase: "Good luck!", ja_trans: "幸運を祈ります！", ja_explanation: "直訳は「すべての幸運を」。", level: "Beginner" },
+        { title: "速度の調整", sw_phrase: "Sema polepole.", en_phrase: "Speak slowly.", ja_trans: "ゆっくり話してください。", ja_explanation: "聞き取れない時に便利です。", level: "Beginner" },
+        { title: "繰り返しの依頼", sw_phrase: "Sema tena.", en_phrase: "Say it again.", ja_trans: "もう一度言ってください。", ja_explanation: "tena は「再び」を意味します。", level: "Beginner" },
+        { title: "問題なし", sw_phrase: "Haina nene.", en_phrase: "No problem.", ja_trans: "問題ありません。", ja_explanation: "日常的によく聞く返答です。", level: "Beginner" },
+      
+        // --- 中級：Intermediate (30件) ---
+        { title: "理由を言う (Because)", sw_phrase: "Siwezi kuja kwa sababu nina kazi.", en_phrase: "I can't come because I have work.", ja_trans: "仕事があるので行けません。", ja_explanation: "kwa sababu は「なぜなら」です。", level: "Intermediate" },
+        { title: "条件を言う (If)", sw_phrase: "Kama ukitaka, nitakusaidia.", en_phrase: "If you want, I will help you.", ja_trans: "もし君が望むなら、助けるよ。", ja_explanation: "kama は「もし〜なら」です。", level: "Intermediate" },
+        { title: "逆説の表現 (But)", sw_phrase: "Ninajua, lakini nimesahau.", en_phrase: "I know, but I have forgotten.", ja_trans: "知っていますが、忘れました。", ja_explanation: "lakini は「しかし」です。", level: "Intermediate" },
+        { title: "選択の表現 (Or)", sw_phrase: "Unataka chai au kahawa?", en_phrase: "Do you want tea or coffee?", ja_trans: "お茶かコーヒー、どちらがいい？", ja_explanation: "au は「または」です。", level: "Intermediate" },
+        { title: "〜のとき (When)", sw_phrase: "Wakati nilikuwa mtoto...", en_phrase: "When I was a child...", ja_trans: "私が子供だったとき...", ja_explanation: "wakati は時間を表します。", level: "Intermediate" },
+        { title: "伝聞の表現 (That)", sw_phrase: "Alisema kwamba atakuja.", en_phrase: "He said that he will come.", ja_trans: "彼は来ると言いました。", ja_explanation: "kwamba は内容を説明します。", level: "Intermediate" },
+        { title: "目的を言う (In order to)", sw_phrase: "Ninasoma ili nijue.", en_phrase: "I study so that I may know.", ja_trans: "知るために勉強しています。", ja_explanation: "ili は「〜するために」です。", level: "Intermediate" },
+        { title: "比較の表現 (Than)", sw_phrase: "Hii ni nzuri kuliko ile.", en_phrase: "This is better than that.", ja_trans: "これはあれより良いです。", ja_explanation: "kuliko は比較に使います。", level: "Intermediate" },
+        { title: "最上級の表現 (Most)", sw_phrase: "Napenda hii zaidi.", en_phrase: "I like this the most.", ja_trans: "これが一番好きです。", ja_explanation: "zaidi は強調です。", level: "Intermediate" },
+        { title: "勧誘の表現 (Let's)", sw_phrase: "Twende sasa!", en_phrase: "Let's go now!", ja_trans: "さあ、行きましょう！", ja_explanation: "twende は「行きましょう」です。", level: "Intermediate" },
+        { title: "禁止の表現 (Don't)", sw_phrase: "Usifanye hivi!", en_phrase: "Don't do this!", ja_trans: "こんなことしないで！", ja_explanation: "Usi- は強い禁止です。", level: "Intermediate" },
+        { title: "まだ〜している (Still)", sw_phrase: "Angali anasoma.", en_phrase: "He is still reading.", ja_trans: "彼はまだ読んでいます。", ja_explanation: "angali は継続を表します。", level: "Intermediate" },
+        { title: "完了直後の表現 (Just)", sw_phrase: "Nimetoka kula.", en_phrase: "I have just eaten.", ja_trans: "今、食べたばかりです。", ja_explanation: "toka は「〜したばかり」です。", level: "Intermediate" },
+        { title: "継続の表現 (Continue)", sw_phrase: "Endelea kusoma.", en_phrase: "Keep reading.", ja_trans: "読み続けてください。", ja_explanation: "endelea は「続ける」です。", level: "Intermediate" },
+        { title: "代わりの表現 (Instead of)", sw_phrase: "Kunywa maji badala ya soda.", en_phrase: "Drink water instead of soda.", ja_trans: "ソーダの代わりに水を飲みなさい。", ja_explanation: "badala ya は「〜の代わりに」です。", level: "Intermediate" },
+        { title: "〜の前に (Before)", sw_phrase: "Osha mikono kabla ya kula.", en_phrase: "Wash hands before eating.", ja_trans: "食べる前に手を洗いなさい。", ja_explanation: "kabla ya は「〜の前」です。", level: "Intermediate" },
+        { title: "〜の後に (After)", sw_phrase: "Baada ya kazi, nitaenda nyumbani.", en_phrase: "After work, I will go home.", ja_trans: "仕事の後、家に帰ります。", ja_explanation: "baada ya は「〜の後」です。", level: "Intermediate" },
+        { title: "一緒の表現 (With)", sw_phrase: "Njoo pamoja nami.", en_phrase: "Come together with me.", ja_trans: "私と一緒に来てください。", ja_explanation: "pamoja na は「〜と共に」です。", level: "Intermediate" },
+        { title: "欠如の表現 (Without)", sw_phrase: "Chai bila sukari.", en_phrase: "Tea without sugar.", ja_trans: "砂糖なしの紅茶。", ja_explanation: "bila は「〜なしで」です。", level: "Intermediate" },
+        { title: "習慣の表現 (Used to)", sw_phrase: "Yeye husoma kila siku.", en_phrase: "He usually reads every day.", ja_trans: "彼は毎日読書をする習慣があります。", ja_explanation: "hu- は習慣を表します。", level: "Intermediate" },
+        { title: "〜についての表現 (About)", sw_phrase: "Tunazungumza kuhusu safari.", en_phrase: "We are talking about the trip.", ja_trans: "私たちは旅行について話しています。", ja_explanation: "kuhusu は「〜について」です。", level: "Intermediate" },
+        { title: "〜のために (For)", sw_phrase: "Hii ni kwa ajili yako.", en_phrase: "This is for you.", ja_trans: "これはあなたのためです。", ja_explanation: "kwa ajili ya は「〜のために」です。", level: "Intermediate" },
+        { title: "関係代名詞・人 (Who)", sw_phrase: "Mtu anayesoma...", en_phrase: "The person who is reading...", ja_trans: "本を読んでいる人は...", ja_explanation: "anayesoma は「読んでいる（人）」です。", level: "Intermediate" },
+        { title: "関係代名詞・物 (Which)", sw_phrase: "Kitu ninachopenda.", en_phrase: "The thing which I like.", ja_trans: "私が好きな物。", ja_explanation: "ninachopenda は「好きな（物）」です。", level: "Intermediate" },
+        { title: "場所の限定 (Where)", sw_phrase: "Pale ninapoishi.", en_phrase: "The place where I live.", ja_trans: "私が住んでいる場所。", ja_explanation: "ninapoishi は「住んでいる（場所）」です。", level: "Intermediate" },
+        { title: "推量の表現 (Maybe)", sw_phrase: "Labda nitakuja kesho.", en_phrase: "Maybe I will come tomorrow.", ja_trans: "たぶん明日行きます。", ja_explanation: "labda は「たぶん」です。", level: "Intermediate" },
+        { title: "確信の表現 (Certainly)", sw_phrase: "Kwa hakika!", en_phrase: "Certainly!", ja_trans: "その通り！ / 確かに！", ja_explanation: "hakika は強い確信です。", level: "Intermediate" },
+        { title: "同一の表現 (Same)", sw_phrase: "Hii ni sawa na ile.", en_phrase: "This is the same as that.", ja_trans: "これはあれと同じです。", ja_explanation: "sawa na は「同じ」です。", level: "Intermediate" },
+        { title: "相違の表現 (Different)", sw_phrase: "Hii ni tofauti kabisa.", en_phrase: "This is completely different.", ja_trans: "これは全く違います。", ja_explanation: "tofauti は「違う」です。", level: "Intermediate" },
+        { title: "義務の表現 (Must)", sw_phrase: "Lazima niende sasa.", en_phrase: "I must go now.", ja_trans: "もう行かなければなりません。", ja_explanation: "lazima は「〜しなければならない」です。", level: "Intermediate" },
+      
+        // --- 上級：Advanced (20件) ---
+        { title: "推測の表現", sw_phrase: "Inaonekana kuwa mvua itanyesha.", en_phrase: "It seems that it will rain.", ja_trans: "雨が降りそうです。", ja_explanation: "推測を表します。", level: "Advanced" },
+        { title: "後悔の表現", sw_phrase: "Ningalijua, nisingalikuja.", en_phrase: "If I had known, I would not have come.", ja_trans: "もし知っていたら...", ja_explanation: "仮定法です。", level: "Advanced" },
+        { title: "驚きの表現", sw_phrase: "Kumbe! Kumbe ameshafika!", en_phrase: "Oh! So he has already arrived!", ja_trans: "へぇー！彼はもう着いてたんだ！", ja_explanation: "意外な事実を知った時の感動詞です。", level: "Advanced" },
+        { title: "ことわざ：急がば回れ", sw_phrase: "Haraka haraka haina baraka.", en_phrase: "Hurry hurry has no blessing.", ja_trans: "急がば回れ。", ja_explanation: "スワヒリ語の代表的な教訓です。", level: "Advanced" },
+        { title: "ことわざ：忍耐は勝利", sw_phrase: "Subira huvuta heri.", en_phrase: "Patience brings happiness.", ja_trans: "待てば海路の日和あり。", ja_explanation: "忍耐が幸運を引き寄せます。", level: "Advanced" },
+        { title: "〜のようである", sw_phrase: "Yeye ni kama kaka yangu.", en_phrase: "He is like my brother.", ja_trans: "彼は私の兄のようです。", ja_explanation: "比喩の表現です。", level: "Advanced" },
+        { title: "可能性の表現", sw_phrase: "Yawezekana atakuja leo.", en_phrase: "It is possible he will come today.", ja_trans: "今日、彼は来る可能性があります。", ja_explanation: "可能性を表します。", level: "Advanced" },
+        { title: "〜せざるを得ない", sw_phrase: "Sina budi kwenda.", en_phrase: "I have no choice but to go.", ja_trans: "行かざるを得ません。", ja_explanation: "強い義務感です。", level: "Advanced" },
+        { title: "相互の動作", sw_phrase: "Wanasumbuliana sana.", en_phrase: "They are bothering each other a lot.", ja_trans: "お互いに困らせ合っています。", ja_explanation: "「お互いに〜する」です。", level: "Advanced" },
+        { title: "使役の表現", sw_phrase: "Mwalimu alinisomesha.", en_phrase: "The teacher made me study.", ja_trans: "先生に勉強させてもらいました。", ja_explanation: "「〜させる」という使役です。", level: "Advanced" },
+        { title: "受動態の表現", sw_phrase: "Chakula kimepikwa.", en_phrase: "The food has been cooked.", ja_trans: "料理が作られました。", ja_explanation: "「〜される」という受身です。", level: "Advanced" },
+        { title: "強調の表現", sw_phrase: "Nilimwambia kabisa!", en_phrase: "I told him clearly!", ja_trans: "彼にはっきりと言いました！", ja_explanation: "「完全に/全く」と強調します。", level: "Advanced" },
+        { title: "〜のふりをする", sw_phrase: "Alijifanya kuwa mgonjwa.", en_phrase: "He pretended to be sick.", ja_trans: "彼は病気のふりをしました。", ja_explanation: "「自分を〜に見せる」です。", level: "Advanced" },
+        { title: "いつの間にか", sw_phrase: "Ghafla, akaanguka.", en_phrase: "Suddenly, he fell.", ja_trans: "突然、彼は転びました。", ja_explanation: "急な出来事です。", level: "Advanced" },
+        { title: "〜さえあれば", sw_phrase: "Iradi tu uwe na furaha.", en_phrase: "As long as you are happy.", ja_trans: "幸せでさえあれば...", ja_explanation: "条件の限定です。", level: "Advanced" },
+        { title: "それぞれの表現", sw_phrase: "Kila mmoja ana kitabu.", en_phrase: "Each one has a book.", ja_trans: "それぞれが本を持っています。", ja_explanation: "「各自」を指します。", level: "Advanced" },
+        { title: "ほぼ・大体", sw_phrase: "Kazi imekaribia kwisha.", en_phrase: "The work is almost finished.", ja_trans: "仕事はほぼ終わりました。", ja_explanation: "完了に近い状態です。", level: "Advanced" },
+        { title: "〜以来", sw_phrase: "Tangu mwaka jana...", en_phrase: "Since last year...", ja_trans: "昨年以来...", ja_explanation: "起点を表します。", level: "Advanced" },
+        { title: "決して〜ない", sw_phrase: "Sitafanya hivyo kamwe.", en_phrase: "I will never do that.", ja_trans: "決してそんなことはしません。", ja_explanation: "強い否定です。", level: "Advanced" },
+        { title: "お別れの挨拶（長期）", sw_phrase: "Kwa heri ya kuonana!", en_phrase: "Goodbye, until we meet again!", ja_trans: "さようなら、また会う日まで！", ja_explanation: "丁寧な別れの言葉です。", level: "Advanced" },
+      ];
+      
+      let currentLevel = 'Beginner';
+      let vIndex = 0;
+      
+      function setLevel(lvl) {
+        currentLevel = lvl;
+        document.querySelectorAll('.btn-lvl').forEach(b => b.classList.remove('active'));
+        document.getElementById('lvl-' + lvl).classList.add('active');
+      }
+      
+      function showView(id) {
+        // 全てのビューを隠す対象に 'grammar' を追加します
+        ['home', 'grammar-choice', 'vocabulary', 'grammar'].forEach(v => {
+          const view = document.getElementById(v + '-view');
+          if(view) view.classList.add('hidden');
+        });
+      
+        // 指定されたビューを表示
+        const target = document.getElementById(id + '-view');
+        if(target) target.classList.remove('hidden');
+      
+        if(id === 'vocabulary') {
+          vIndex = 0;
+          document.getElementById('v-lvl-badge').innerText = currentLevel;
+          updateWord();
+        }
+      
+        // --- ここが重要：文法を表示する命令 ---
+        if(id === 'grammar') {
+          const badge = document.getElementById('g-lvl-badge');
+          if(badge) badge.innerText = currentLevel;
+          showGrammarList(); // 下で作る関数を呼び出す
+        }
+      }
+      
+      function updateWord() {
+        const list = vocabularyData.filter(d => d.level === currentLevel);
+        if(list.length === 0) {
+          document.getElementById('v-en').innerText = "Preparing Data...";
+          document.getElementById('v-sw').innerText = "-";
+          document.getElementById('v-ja').innerText = "-";
+          document.getElementById('v-emoji').innerText = "⏳";
+          return;
+        }
+        const d = list[vIndex];
+        document.getElementById('v-cat-badge').innerText = d.category;
+        document.getElementById('v-emoji').innerText = d.emoji;
+        document.getElementById('v-en').innerText = d.en;
+        document.getElementById('v-sw').innerText = d.sw;
+        document.getElementById('v-ja').innerText = d.ja;
+      }
+      
+      function changeWord(step) {
+        const list = vocabularyData.filter(d => d.level === currentLevel);
+        if(list.length === 0) return;
+        vIndex = (vIndex + step + list.length) % list.length;
+        updateWord();
+      }
+      
+      function speak(lang) {
+      const textEl = document.getElementById('v-' + lang);
+      if (!textEl) return;
+      const text = textEl.innerText;
+      if (text === "-" || text.includes("Preparing")) return;
+      
+      // 強制キャンセル
+      window.speechSynthesis.cancel();
+      
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
+      
+      // --- 【ここが魔法の1行】 ---
+      // 日本語の時だけ、ほんの少しだけ設定をいじる（これで二重化が解けることが多いです）
+      if (lang === 'ja') {
+        u.pitch = 1.0; // 声の高さ（標準）
+        u.rate = 0.95; // ほんの少しだけゆっくりにする（1.0が標準）
+      }
+      
+      window.speechSynthesis.speak(u);
+      }
+      // --- 文法リストを生成する命令 (絵文字の読み上げ防止版) ---
+      function showGrammarList() {
+        const listArea = document.getElementById('grammar-list');
+        if(!listArea) return;
+      
+        const list = grammarData.filter(d => d.level === currentLevel);
+        listArea.innerHTML = ''; 
+      
+        if(list.length === 0) {
+          listArea.innerHTML = '<p class="text-center p-8 text-gray-500">準備中です...</p>';
+          return;
+        }
+      
+        list.forEach((item, idx) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.style.textAlign = 'left';
+          card.style.marginBottom = '20px';
+          card.style.borderLeft = '6px solid var(--secondary-color)';
+      
+          card.innerHTML = `
+            <div style="font-size: 0.8rem; color: var(--primary-color); font-weight: bold; margin-bottom: 8px; opacity: 0.7;">
+              ${item.title}
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="font-size: 1.3rem; font-weight: bold; color: #333; flex: 1;">
+                <span id="g-sw-${idx}">${item.sw_phrase || "---"}</span>
               </div>
-              <button class="btn-speak" onclick="speakGrammar('g-ja-${idx}', 'ja')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
+              <button class="btn-speak" onclick="speakGrammar('g-sw-${idx}', 'sw')">🔊</button>
             </div>
-            <span style="font-size: 0.85rem; color: #666; display: block;">${item.ja_explanation || item.content || ""}</span>
-          </div>
-        </div>
-      `;
-      listArea.appendChild(card);
-    });
-  }
-  // 文法専用の音声読み上げ関数 (この関数が抜けていたため音が出ませんでした)
-  function speakGrammar(elementId, lang) {
-    const el = document.getElementById(elementId);
-    if(!el || el.innerText === "---") return;
-    
-    const u = new SpeechSynthesisUtterance(el.innerText);
-    
-    // 言語の設定
-    if(lang === 'en') {
-      u.lang = 'en-US';
-    } else if(lang === 'ja') {
-      u.lang = 'ja-JP';
-    } else {
-      u.lang = 'sw-KE'; // スワヒリ語
-    }
-    
-    window.speechSynthesis.speak(u);
-  }
-</script>
+      
+            <div style="border-top: 1px dashed #ddd; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="color: #555; font-size: 0.95rem;">
+                  🇺🇸 <span id="g-en-${idx}">${item.en_phrase || "---"}</span>
+                </div>
+                <button class="btn-speak" onclick="speakGrammar('g-en-${idx}', 'en')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
+              </div>
+              
+              <div style="color: #444; font-size: 0.95rem; line-height: 1.5; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <div style="flex: 1;">
+                    <span>🇯🇵</span> 
+                    <strong id="g-ja-${idx}" style="color: #d97706;">${item.ja_trans || "---"}</strong>
+                  </div>
+                  <button class="btn-speak" onclick="speakGrammar('g-ja-${idx}', 'ja')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
+                </div>
+                <span style="font-size: 0.85rem; color: #666; display: block;">${item.ja_explanation || item.content || ""}</span>
+              </div>
+            </div>
+          `;
+          listArea.appendChild(card);
+        });
+      }
+      // 文法専用の音声読み上げ関数 (この関数が抜けていたため音が出ませんでした)
+      function speakGrammar(elementId, lang) {
+        const el = document.getElementById(elementId);
+        if(!el || el.innerText === "---") return;
+        
+        const u = new SpeechSynthesisUtterance(el.innerText);
+        
+        // 言語の設定
+        if(lang === 'en') {
+          u.lang = 'en-US';
+        } else if(lang === 'ja') {
+          u.lang = 'ja-JP';
+        } else {
+          u.lang = 'sw-KE'; // スワヒリ語
+        }
+        
+        window.speechSynthesis.speak(u);
+      }
+   </script>
 </body>
 </html>
