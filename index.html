@@ -1,10 +1,10 @@
 <!doctype html>
 <meta name="google" content="notranslate">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>スワヒリ語学習</title>
-   <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3-Language Learning App</title>
+  <style>
       :root {
       /* 背景画像の指定（GitHubのRaw URL） */
       --bg-image: url('https://raw.githubusercontent.com/JSXAGI/swahili-study/main/swahili.jpg');
@@ -317,7 +317,8 @@
       height: 75px;
       display: flex !important;
       align-items: center !important;
-      justify-content: center !important;     
+      justify-content: center !important;
+      z-index: 10000;
       pointer-events: none;
       }
       /* 4. ホームボタン：左端から少し離しつつ重ならない位置(20px) */
@@ -368,76 +369,97 @@
       font-size: 1.1rem !important; /* 文字を少しだけ小さく */
       }
    </style>
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-   <div class="top-navigation">
-      <a href="index.html" class="home-btn">🏠</a>
-      <h1 class="app-title">スワヒリ語学習</h1>
-   </div>
-   <main class="main-content" id="main-menu">
-      <div id="home-view">
-         <div class="card text-center">
-            <h2>1. Level / レベル選択</h2>
-            <div class="level-selector">
-               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級<br>小3~</button>
-               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級<br>中学</button>
-               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級<br>高校~</button>
-            </div>
-         </div>
-         <div class="card text-center">
-            <h2>2. Activity / 学習内容</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-               <button class="btn btn-primary" onclick="showView('vocabulary')">📚 Words<br>単語</button>
-               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ Grammar<br>文法</button>
-            </div>
-         </div>
+  <div class="top-navigation">
+    <a href="index.html" class="home-btn">🏠</a>
+    <h1 class="app-title">スワヒリ語学習</h1>
+  </div>
+  <main class="main-content" id="main-menu">
+    <div id="home-view">
+      <div class="card text-center">
+        <h2>1. Level / レベル選択</h2>
+        <div class="level-selector">
+          <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級
+            <br>小3~
+          </button>
+          <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級
+            <br>中学
+          </button>
+          <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級
+            <br>高校~
+          </button>
+        </div>
       </div>
-      <div id="vocabulary-view" class="hidden">
-         <div class="card text-center">
-            <div><span class="badge" id="v-lvl-badge"></span><span class="badge" id="v-cat-badge" style="background:var(--accent-color)"></span></div>
-            <div id="v-emoji" style="font-size: 6rem; margin: 0px 0;"></div>
-            <div class="lang-row">
-               <div class="lang-label">English</div>
-               <div class="lang-text"><span id="v-en"></span><button class="btn-speak" onclick="speak('en')">🔊</button></div>
-            </div>
-            <div class="lang-row">
-               <div class="lang-label">Kiswahili</div>
-               <div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')">🔊</button></div>
-            </div>
-            <div class="lang-row">
-               <div class="lang-label">日本語</div>
-               <div class="lang-text"><span id="v-ja"></span><button class="btn-speak" onclick="speak('ja')">🔊</button></div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px;">
-               <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
-               <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
-            </div>
-         </div>
+      <div class="card text-center">
+        <h2>2. Activity / 学習内容</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <button class="btn btn-primary" onclick="showView('vocabulary')">📚 Words
+            <br>単語
+          </button>
+          <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ Grammar
+            <br>文法
+          </button>
+        </div>
       </div>
-      <div id="grammar-choice-view" class="hidden">
-         <div class="card text-center">
-            <h2>文法レベルを選んでください</h2>
-            <div style="display: grid; gap: 10px; margin-top: 20px;">
-               <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">初級文法</button>
-               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="setLevel('Intermediate'); showView('grammar')">中級文法</button>
-               <button class="btn btn-primary" style="background-color: var(--accent-color);" onclick="setLevel('Advanced'); showView('grammar')">上級文法</button>
-               <button class="btn" style="background: #e2e8f0; margin-top: 10px;" onclick="showView('home')">戻る</button>
-            </div>
-         </div>
+    </div>
+    <div id="vocabulary-view" class="hidden">
+      <div class="card text-center">
+        <div>
+          <span class="badge" id="v-lvl-badge"></span>
+          <span class="badge" id="v-cat-badge" style="background:var(--accent-color)"></span>
+        </div>
+        <div id="v-emoji" style="font-size: 6rem; margin: 0px 0;"></div>
+        <div class="lang-row">
+          <div class="lang-label">English</div>
+          <div class="lang-text">
+            <span id="v-en"></span>
+            <button class="btn-speak" onclick="speak('en')">🔊</button>
+          </div>
+        </div>
+        <div class="lang-row">
+          <div class="lang-label">Kiswahili</div>
+          <div class="lang-text">
+            <span id="v-sw"></span>
+            <button class="btn-speak" onclick="speak('sw')">🔊</button>
+          </div>
+        </div>
+        <div class="lang-row">
+          <div class="lang-label">日本語</div>
+          <div class="lang-text">
+            <span id="v-ja"></span>
+            <button class="btn-speak" onclick="speak('ja')">🔊</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px;">
+          <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
+          <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
+        </div>
       </div>
-      <div id="grammar-view" class="hidden">
-         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-               <button class="btn" style="padding: 5px 15px; background: #e2e8f0;" onclick="showView('grammar-choice')">← 戻る</button>
-               <span class="badge" id="g-lvl-badge"></span>
-            </div>
-            <div id="grammar-list">
-            </div>
-         </div>
+    </div>
+    <div id="grammar-choice-view" class="hidden">
+      <div class="card text-center">
+        <h2>文法レベルを選んでください</h2>
+        <div style="display: grid; gap: 10px; margin-top: 20px;">
+          <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">初級文法</button>
+          <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="setLevel('Intermediate'); showView('grammar')">中級文法</button>
+          <button class="btn btn-primary" style="background-color: var(--accent-color);" onclick="setLevel('Advanced'); showView('grammar')">上級文法</button>
+          <button class="btn" style="background: #e2e8f0; margin-top: 10px;" onclick="showView('home')">戻る</button>
+        </div>
       </div>
-   </main>
-   <script>
+    </div>
+    <div id="grammar-view" class="hidden">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <button class="btn" style="padding: 5px 15px; background: #e2e8f0;" onclick="showView('grammar-choice')">← 戻る</button>
+          <span class="badge" id="g-lvl-badge"></span>
+        </div>
+        <div id="grammar-list"></div>
+      </div>
+    </div>
+  </main>
+  <script>
       // --- 単語データ ---
       const vocabularyData = [
         { en: "Family", sw: "Familia", ja: "家族(かぞく)", emoji: "👨‍👩‍👧‍👦", level: "Beginner", category: "Life" },
@@ -1005,4 +1027,3 @@
    </script>
 </body>
 </html>
-
