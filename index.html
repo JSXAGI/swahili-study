@@ -2,380 +2,143 @@
 <meta name="google" content="notranslate">
 <head>
    <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>スワヒリ語学習</title>
-   <style>
-      :root {
-      /* 背景画像の指定（GitHubのRaw URL） */
+<style>
+    :root {
       --bg-image: url('https://raw.githubusercontent.com/JSXAGI/swahili-study/main/swahili.jpg');
-      --bg-color: #fef3c7; 
-      /* カードの透明度：0.8くらいにすると背景が見えて、かつ文字も読めます */
-      --surface-color: rgba(255, 255, 255, 0.8); 
+      --bg-color: #fef3c7;
+      --surface-color: rgba(255, 255, 255, 0.8);
       --text-color: #1e293b;
       --primary-color: #f59e0b;
       --secondary-color: #8b5cf6;
       --accent-color: #10b981;
       --header-height: 100px;
-      }
+    }  
+      * { box-sizing: border-box; font-family: 'Segoe UI', Meiryo, sans-serif; }
       body, html { 
       margin: 0; 
-      padding: 0; /* paddingを0にして、container側で調整します */
+      padding: 0; 
       min-height: 100vh;
       background-color: var(--bg-color);
       background-image: var(--bg-image);
       background-size: cover;
       background-position: left 20% center !important;
-      background-attachment: fixed; /* 背景を固定 */
+      background-attachment: fixed; 
       background-repeat: no-repeat;
       color: var(--text-color); 
       overflow-x: hidden; 
       }
-      /* ★ポイント2：コンテンツを中央に寄せ、最大幅を制限して左右に背景を見せる */
-      .container {
-      max-width: 600px; /* 横幅を少し狭くして背景が見える面積を増やします */
-      margin: 0 auto;
-      padding: calc(var(--header-height) + 40px) 20px 100px; /* 上下に大きな余白 */
-      }
-      /* ★ポイント3：カードのデザインを「背景を活かす」ものに変更 */
-      .card {
-      background: var(--surface-color) !important;
-      backdrop-filter: blur(8px); /* 背景をボカすことで、透けていても文字が読めます */
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.4); /* 白い細い枠線で高級感を出す */
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-      padding: 20px;
-      }
-      /* ボタンも少し透けさせるとおしゃれです */
-      .btn-speak {
-      background: rgba(245, 158, 11, 0.8) !important;
-      }
       .app-header {
       position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
-      background-color: var(--primary-color); display: flex; align-items: center; padding: 0 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1000;
+      background-color: #ffffff00; display: flex; align-items: center; padding: 0 0px;      
+      z-index: 1000;
       }
       .home-link {
-      background: white; color: var(--primary-color); padding: 10px 20px; border-radius: 50px;
-      font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      pointer-events: auto;
+      position: absolute !important;
+      left: 20px !important;
+      top: 15px !important;
+      background: white; color: var(--primary-color); padding: 3px 3px; border-radius: 5px;
+      font-weight: bold; font-size: 2rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
       }
-      .main-content { margin-top: calc(var(--header-height) + 20px); padding: 20px; max-width: 800px; margin: auto; }
+      .main-content { 
+      margin-top: calc(var(--header-height) + 20px); 
+      padding: 20px; 
+      max-width: 800px; 
+      margin-left: auto;
+      margin-right: auto;
+      }
       .card { background: var(--surface-color); border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid #fff; margin-bottom: 20px; }
       .level-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-      .btn-lvl { padding: 12px; border-radius: 12px; border: 3px solid #cbd5e1; font-weight: bold; cursor: pointer; background: #f1f5f9; }
+      .btn-lvl { padding: 10px; border-radius: 12px; border: 3px solid #cbd5e1; font-weight: bold; cursor: pointer; background: #f1f5f9; }
       .btn-lvl.active { border-color: var(--primary-color); background: white; color: var(--primary-color); transform: scale(1.05); }
-      .btn { cursor: pointer; border: none; border-radius: 12px; padding: 15px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
+      .btn { cursor: pointer; border: none; border-radius: 12px; padding: 10px; font-weight: bold; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
       .btn-primary { background-color: var(--primary-color); color: white; width: 100%; }
       .lang-row { background: #f8fafc; padding: 10px 15px; border-radius: 15px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
       .lang-label { font-size: 0.75rem; color: #64748b; font-weight: bold; }
       .lang-text { font-size: 1.6rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-      /* スピーカーボタンの押しやすさを少し向上（安定版） */
-      .btn-speak {
-      background: #e2e8f0; 
-      border: none; 
-      padding: 12px 16px !important; /* 少し広げる */
-      border-radius: 8px; 
-      cursor: pointer; 
-      font-size: 1.4rem !important; /* 1.2から1.4へ微増 */
-      }
+      .btn-speak { background: #e2e8f0; border: none; padding: 12px 16px !important; border-radius: 8px; cursor: pointer; font-size: 1.4rem !important; }
       .hidden { display: none; }
       .text-center { text-align: center; }
       .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; background: var(--secondary-color); color: white; margin: 2px; display: inline-block; }
-      /* --- アクセシビリティ強化：マウスが見えやすい工夫 --- */
-      /* 1. ボタンにマウスが乗った時に、劇的に色を変えて大きくする */
-      .btn:hover, .btn-speak:hover {
-      background-color: #ff9800 !important; /* 目立つオレンジ色 */
-      color: white !important;              /* 文字を白くしてクッキリ */
-      transform: scale(1.15);              /* ボタンを1.15倍に拡大 */
-      box-shadow: 0 0 25px rgba(255, 152, 0, 0.8); /* オレンジ色の光を放つ */
-      z-index: 10;                         /* 他の要素より前に出す */
-      transition: all 0.2s ease-in-out;    /* 動きを滑らかに */
+      
+      .btn:hover, .btn-speak:hover { background-color: #ff9800 !important; color: white !important; transform: scale(1.1); transition: 0.2s; }
+
+      /* --- 文法タイトルの装飾 --- */
+      #grammar-list .card div[style*="font-size:0.9rem"],
+      #grammar-list .card div[style*="font-size: 0.9rem"] {
+        font-size: 1.1rem !important;
+        color: #ffffff !important;
+        background-color: var(--secondary-color) !important;
+        display: inline-block !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        margin-bottom: 12px !important;
+        font-weight: bold !important;
       }
-      /* 2. マウスカーソルを常に「指差しマーク」にする（見つけやすくするため） */
-      body {
-      cursor: pointer; 
-      }
-      /* 3. 単語や文法の文字サイズを少しだけ大きくして、読みやすくする */
-      .lang-text {
-      font-size: 1.25rem;
-      font-weight: 500;
-      }
-      /* --- 追加のアクセシビリティ改善：コントラストとボタン強化 --- */
-      /* 1. 【単語学習】下の「←」「Next」ボタンを巨大化してクッキリさせる */
-      #vocabulary-view .btn {
-      font-size: 1.6rem !important; /* 矢印と文字を大きく */
-      font-weight: 800 !important; /* 極太にする */
-      padding: 20px 10px !important;
-      border: 3px solid #64748b !important; /* 濃いグレーの枠線で存在感を出す */
-      background-color: #ffffff !important; /* 背景を白にしてコントラストを上げる */
-      color: #1e293b !important;
-      }
-      /* 3. 【文法学習】英語部分の読みやすさを改善 */
-      [id^="g-en-"] {
-      font-family: 'Verdana', 'Arial', sans-serif !important;
-      font-weight: 700 !important; /* 太字に */
-      color: #0f172a !important;   /* 真っ黒に近い紺 */
-      display: inline-block;
-      margin-left: 5px;
-      }
-      /* 4. 文法カード内の説明文（日本語）を読みやすく */
-      .card div[style*="color: #444"], 
-      .card span[style*="color: #666"] {
-      color: #1e293b !important; /* 文字色を濃く */
-      font-size: 1.1rem !important; /* 少し大きく */
-      line-height: 1.6 !important; /* 行間を広げて読みやすく */
-      }
-      /* 5. ボディの背景を少しだけ落ち着かせて眩しさを抑える（任意） */
-      body {
-      background-color: #fffbeb !important; /* 柔らかいクリーム色（#fef3c7より少し白に近い） */
-      }
-      /* --- アクセシビリティ最終調整：コントラストと巨大ボタン --- */
-      /* 1. 【単語学習】ボタンを「見やすく、かつ、うるさくない」デザインに改善 */
-      #vocabulary-view .btn {
-      font-size: 1.3rem !important;  /* 少しサイズを落とす */
-      font-weight: 700 !important;   /* 適度な太字 */
-      padding: 12px 18px !important;
-      border: 2px solid #94a3b8 !important; /* 枠線を細く、色をマイルドに */
-      background-color: rgba(255, 255, 255, 0.9) !important; /* わずかに透明感 */
-      color: #334155 !important;    /* 落ち着いた濃いグレー */
-      min-width: 150px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* 影を柔らかく */
-      letter-spacing: 1px;
-      }
-      /* マウスが乗った時だけ、元気に反応するようにする */
-      #vocabulary-view .btn:hover {
-      background-color: #f59e0b !important; /* 乗った時だけオレンジに */
-      color: white !important;
-      border-color: #f59e0b !important;
-      }
-      /* 2. 【文法学習】スワヒリ語（メイン）をシャープで見やすく調整 */
-      [id^="g-sw-"] {
-      color: #9a3412 !important;    /* 視認性の高い濃い色 */
-      font-size: 1.5rem !important; /* ほどよい大きさに微調整 */
-      font-weight: 600 !important;  /* ★太さを抑えて文字の潰れを防止 */
-      letter-spacing: 0.05em !important; /* ★文字の間隔を広げてクッキリさせる */
-      display: block;
-      line-height: 1.4;
-      margin: 5px 0;
-      }
-      /* 3. 【文法学習】英語（米語）をクッキリした紺色に */
-      [id^="g-en-"] {
-      font-family: 'Verdana', sans-serif !important;
-      font-weight: 700 !important;
-      color: #1e3a8a !important;    /* 濃い青 */
-      }
-      /* 4. 【文法学習】スワヒリ語の「解説文（日本語）」を真っ黒にして読みやすく */
-      .card span[style*="color: #666"],
-      .card div[style*="margin-top: 10px"] span {
-      color: #000000 !important;    /* 最高のコントラスト（黒） */
-      font-size: 1.2rem !important; /* 文字サイズをアップ */
-      font-weight: 500 !important;
-      line-height: 1.6 !important;
-      }
-      /* --- 文法カードのタイトル（「基本の挨拶」など）をクッキリさせる --- */
-      /* タイトル部分の透明度をなくし、背景色をつけて目立たせる */
-      .card div[style*="font-size: 0.8rem"] {
-      font-size: 1.1rem !important;    /* 文字を大きく */
-      color: #ffffff !important;       /* 文字は白 */
-      background-color: #8b5cf6 !important; /* 背景を紫（セカンダリーカラー）に */
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 8px;
-      opacity: 1 !important;           /* 透明度を解除してハッキリ */
-      margin-bottom: 12px !important;
-      font-weight: bold !important;
-      box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-      }
-      /* --- スマホ専用：デザイン修正（原本コピー用） --- */
+
+      /* --- スマホ専用デザイン（一画面に収めるダイエット版） --- */
       @media screen and (max-width: 600px) {
-      /* 1. 画面全体の余白を削る（PC用の40pxが広すぎたため） */
-      body, html { padding: 0 !important; }
-      .main-content { padding: 10px 5px !important; margin-top: 80px !important; }
-      /* 2. ヘッダーの「終了方法」ボックスをスマホでは完全に隠す */
-      .app-header div[style*="width: 650px"] {
-      display: none !important;
+        .main-content { 
+          margin-top: 105px !important; 
+          padding: 10px 5px !important; 
+        }
+        .level-selector { 
+          display: flex !important; 
+          flex-direction: column !important; 
+          gap: 6px !important; 
+        }
+        .btn-lvl { 
+          height: auto !important; 
+          min-height: 44px !important; 
+          padding: 8px !important;
+          font-size: 1.1rem !important; 
+        }
+        #home-view .btn-primary {
+          width: 48% !important;
+          height: 75px !important;
+          font-size: 1.0rem !important;
+          padding: 5px !important;
+        }
+        /* 単語・文法ボタンを横に並べるための親要素調整 */
+        #home-view div[style*="display: grid"] {
+          display: flex !important;
+          flex-direction: row !important;
+          gap: 10px !important;
+        }
+        .card { 
+          padding: 15px !important; 
+          margin-bottom: 10px !important; 
+          width: 96% !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+        h2 { font-size: 1.2rem !important; margin-top: 5px !important; }
+        
+        button { -webkit-tap-highlight-color: transparent; }
+
+        .lang-text { font-size: 1.3rem !important; }
       }
-      /* 3. 白いカードの固定高さを解除（これで重なりが消えます） */
-      .card {
-      width: 95% !important;
-      height: auto !important;
-      min-height: auto !important;
-      padding: 20px 10px !important;
-      margin: 10px auto !important;
-      display: block !important;
-      }
-      /* 4. レベル選択（初級・中級・上級）を横長の大きなボタンにして並べる */
-      .level-selector {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 12px !important;
-      height: auto !important;
-      writing-mode: horizontal-tb !important;
-      }
-      .btn-lvl {
-      width: 100% !important;
-      height: 75px !important; /* 押しやすい高さ */
-      min-height: 75px !important;
-      writing-mode: horizontal-tb !important;
-      font-size: 1.25rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      border-radius: 12px !important;
-      position: static !important; /* 重なり防止 */
-      transform: none !important;
-      margin: 0 !important;
-      }
-      /* 5. 下の「単語・文法」ボタンを横並びで大きく */
-      .activity-select {
-      display: flex !important;
-      flex-direction: row !important;
-      gap: 10px !important;
-      width: 100% !important;
-      }
-      .btn-act {
-      width: 48% !important;
-      height: 120px !important;
-      font-size: 1.1rem !important;
-      }
-      /* 6. おまじない：タップ時の青い影と枠を消す */
-      button, .audio-btn, .nav-btn {
-      -webkit-tap-highlight-color: transparent;
-      outline: none;
-      }
-      /* 7. 中学生向けの洗練された文字サイズ調整 */
-      .display-word, .kiswahili-text {
-      font-size: 1.3rem !important;
-      line-height: 1.3 !important;
-      color: #5d4037 !important;
-      }
-      .language-label {
-      font-size: 0.7rem !important;
-      color: #999 !important;
-      margin-bottom: 2px !important;
-      }
-      } /* ← ここで600px以下の設定を閉じます */
-      /* ここから下を既存の style の最後に追加してください */
-      @media screen and (max-width: 480px) {
-      /* スマホ版だけの特別な設定 */
-      body {
-      padding: 10px; /* 画面端の余白を少し詰める */
-      background-color: #fcfaf5; /* 優しい色に */
-      }
-      /* 文字を全体的に少し小さく、上品に */
-      h2, .level-select-title {
-      font-size: 1.1rem !important;
-      margin-bottom: 15px !important;
-      }
-      /* 各カードの調整 */
-      #words-page .card, #grammar-page .card, .level-card {
-      padding: 18px !important;
-      border-radius: 15px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-      }
-      /* 単語・例文の文字サイズを「中学生向け」に微調整 */
-      .display-word, .kiswahili-text {
-      font-size: 1.3rem !important; /* 少し小さく */
-      line-height: 1.3 !important;
-      color: #5d4037 !important; /* 濃い茶色で知的に */
-      }
-      /* ラベル（English, 日本語など）を控えめに */
-      .language-label {
-      font-size: 0.7rem !important;
-      color: #999 !important;
-      margin-bottom: 2px !important;
-      }
-      /* ボタン類をスッキリさせる */
-      .btn, .nav-btn {
-      padding: 8px 15px !important;
-      font-size: 0.9rem !important;
-      border-radius: 8px !important;
-      }
-      /* スピーカーアイコンのサイズ調整 */
-      .audio-icon {
-      width: 32px !important;
-      height: 32px !important;
-      }
-      }
-      /* --- ここから最新の修正版 --- */
-      /* 1. カードの透明度を極限まで上げる（0.4 = 40%の白） */
-      :root {
-      --surface-color: rgba(255, 255, 255, 0.4) !important; 
-      }
-      /* 2. 全てのカードを「すりガラス」風に透けさせる */
-      .card {
-      background: var(--surface-color) !important;
-      backdrop-filter: blur(15px) !important; /* ボカシを10→15に強化 */
-      border: 1px solid rgba(255, 255, 255, 0.2) !important; /* 枠も細く薄く */
-      }
-      /* 3. ナビゲーション全体の再調整 */
-      .top-navigation {
-      position: fixed !important;
-      top: 0;
-      left: 0;
-      width: 100% !important;
-      height: 75px;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;      
-      pointer-events: none;
-      }
-      /* 4. ホームボタン：左端から少し離しつつ重ならない位置(20px) */
-      .home-btn {
-      pointer-events: auto;
-      position: absolute !important;
-      left: 20px !important; /* 50だと寄りすぎなので20に */
-      top: 15px !important;
-      background-color: rgba(255, 255, 255, 0.8) !important;
-      color: var(--primary-color) !important;
-      padding: 3px 3px !important;
-      border-radius: 6px !important; /* さらに少しカチッとした角 */
-      font-weight: bold !important;
-      font-size: 1.8rem !important;
-      text-decoration: none !important;
-      border: 2px solid var(--primary-color) !important;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-      }
-      /* 5. タイトル：白抜きデザインを維持 */
-      .app-title {
-      pointer-events: auto;
-      margin: 0 !important;
-      font-size: 1.6rem !important;
-      color: #ffffff !important;
-      text-shadow: 
-      2px 2px 0px #d97706, 
-      2px -2px 0px #d97706,
-      -2px 2px 0px #d97706,
-      -2px -2px 0px #d97706,
-      0px 0px 12px rgba(0,0,0,0.9);
-      letter-spacing: 1px !important;
-      }
-      /* コンテンツの開始位置を微調整 */
-      .main-content {
-      margin-top: 80px !important; 
-      }
-      /* --- ここまで最新の修正版 --- */
-      /* --- 単語学習の余白だけを削る（他には影響しません） --- */
-      #vocabulary-view .card {
-      padding: 10px 15px !important;
-      margin-bottom: 8px !important;
-      }
-      #vocabulary-view .lang-row {
-      margin-bottom: 4px !important;
-      padding: 4px 10px !important;
-      }
-      #vocabulary-view .lang-text {
-      font-size: 1.1rem !important; /* 文字を少しだけ小さく */
+
+      /* --- 超小型スマホ用の微調整 --- */
+      @media screen and (max-width: 380px) {
+        .main-content { margin-top: 95px !important; }
+        #home-view .btn-primary { height: 65px !important; }
+        .btn-lvl { min-height: 40px !important; }
       }
    </style>
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-   <div class="top-navigation">
-      <button onclick="showView('home')" class="home-btn" style="background:none; border:none; cursor:pointer;">🏠</button>
-      <h1 class="app-title">スワヒリ語学習</h1>
-   </div>
-   <main class="main-content" id="main-menu">
+   <header class="app-header">
+      <button class="home-link" onclick="showView('home')">
+      🏠
+      </button>
+      <div style="flex-grow: 1; text-align: center; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: bold; font-size: 2rem;" id="mode-title">スワヒリ語学習</div>
+   </header>
+
+   <main class="main-content">
       <div id="home-view">
          <div class="card text-center">
             <h2>1. Level / レベル選択</h2>
@@ -393,28 +156,30 @@
             </div>
          </div>
       </div>
+
       <div id="vocabulary-view" class="hidden">
          <div class="card text-center">
             <div><span class="badge" id="v-lvl-badge"></span><span class="badge" id="v-cat-badge" style="background:var(--accent-color)"></span></div>
-            <div id="v-emoji" style="font-size: 6rem; margin: 0px 0;"></div>
-            <div class="lang-row">
-               <div class="lang-label">English</div>
-               <div class="lang-text"><span id="v-en"></span><button class="btn-speak" onclick="speak('en')">🔊</button></div>
-            </div>
+            <div id="v-emoji" style="font-size: 5rem; margin: 0px 0;"></div>
             <div class="lang-row">
                <div class="lang-label">Kiswahili</div>
                <div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')">🔊</button></div>
             </div>
             <div class="lang-row">
+               <div class="lang-label">English</div>
+               <div class="lang-text"><span id="v-en"></span><button class="btn-speak" onclick="speak('en')">🔊</button></div>
+            </div>
+            <div class="lang-row">
                <div class="lang-label">日本語</div>
                <div class="lang-text"><span id="v-ja"></span><button class="btn-speak" onclick="speak('ja')">🔊</button></div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 5px;">
                <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
                <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
             </div>
          </div>
       </div>
+
       <div id="grammar-choice-view" class="hidden">
          <div class="card text-center">
             <h2>文法レベルを選んでください</h2>
@@ -426,19 +191,21 @@
             </div>
          </div>
       </div>
+
       <div id="grammar-view" class="hidden">
-         <div class="card">
+         <div class="text-center" style="margin-bottom: 15px;">
+            <span class="badge" id="g-lvl-badge"></span>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                <button class="btn" style="padding: 5px 15px; background: #e2e8f0;" onclick="showView('grammar-choice')">← 戻る</button>
                <span class="badge" id="g-lvl-badge"></span>
             </div>
-            <div id="grammar-list">
-            </div>
          </div>
+         <div id="grammar-list"></div>
       </div>
    </main>
+
    <script>
-      // --- 単語データ ---
+      // ここにお手持ちのスワヒリ語データを貼り付けてください
       const vocabularyData = [
         { en: "Family", sw: "Familia", ja: "家族(かぞく)", emoji: "👨‍👩‍👧‍👦", level: "Beginner", category: "Life" },
         { en: "Home", sw: "Nyumba", ja: "家(いえ)", emoji: "🏠", level: "Beginner", category: "Life" },
@@ -849,164 +616,96 @@
         { title: "決して〜ない", sw_phrase: "Sitafanya hivyo kamwe.", en_phrase: "I will never do that.", ja_trans: "決してそんなことはしません。", ja_explanation: "強い否定です。", level: "Advanced" },
         { title: "お別れの挨拶（長期）", sw_phrase: "Kwa heri ya kuonana!", en_phrase: "Goodbye, until we meet again!", ja_trans: "さようなら、また会う日まで！", ja_explanation: "丁寧な別れの言葉です。", level: "Advanced" },
 		];
-      
+
       let currentLevel = 'Beginner';
       let vIndex = 0;
-      
-      function setLevel(lvl) {
-        currentLevel = lvl;
-        document.querySelectorAll('.btn-lvl').forEach(b => b.classList.remove('active'));
-        const targetBtn = document.getElementById('lvl-' + lvl);
-        if(targetBtn) targetBtn.classList.add('active');
 
-        // ★ここが重要！画面を再描画する命令を追加します
-        vIndex = 0; // インデックスをリセット
-        if (typeof renderVocabulary === 'function') renderVocabulary();
-        if (typeof showGrammarList === 'function') showGrammarList();
+      function setLevel(lvl) {
+         currentLevel = lvl;
+         document.querySelectorAll('.btn-lvl').forEach(b => b.classList.remove('active'));
+         const targetBtn = document.getElementById('lvl-' + lvl);
+         if(targetBtn) targetBtn.classList.add('active');
+         
+         vIndex = 0;
+         if(!document.getElementById('vocabulary-view').classList.contains('hidden')) updateWord();
+         if(!document.getElementById('grammar-view').classList.contains('hidden')) renderGrammar();
       }
-      
+
       function showView(id) {
-        // 全てのビューを隠す対象に 'grammar' を追加します
-        ['home', 'grammar-choice', 'vocabulary', 'grammar'].forEach(v => {
-          const view = document.getElementById(v + '-view');
-          if(view) view.classList.add('hidden');
-        });
-      
-        // 指定されたビューを表示
-        const target = document.getElementById(id + '-view');
-        if(target) target.classList.remove('hidden');
-      
-        if(id === 'vocabulary') {
-          vIndex = 0;
-          document.getElementById('v-lvl-badge').innerText = currentLevel;
-          updateWord();
-        }
-      
-        // --- ここが重要：文法を表示する命令 ---
-        if(id === 'grammar') {
-          const badge = document.getElementById('g-lvl-badge');
-          if(badge) badge.innerText = currentLevel;
-          showGrammarList(); // 下で作る関数を呼び出す
-        }
+         ['home', 'vocabulary', 'grammar-choice', 'grammar'].forEach(v => {
+            document.getElementById(v + '-view').classList.add('hidden');
+         });
+         document.getElementById(id + '-view').classList.remove('hidden');
+
+         if(id === 'vocabulary') {
+            vIndex = 0;
+            updateWord();
+         }
+         if(id === 'grammar') {
+            renderGrammar();
+         }
       }
-      
+
       function updateWord() {
-        const list = vocabularyData.filter(d => d.level === currentLevel);
-        if(list.length === 0) {
-          document.getElementById('v-en').innerText = "Preparing Data...";
-          document.getElementById('v-sw').innerText = "-";
-          document.getElementById('v-ja').innerText = "-";
-          document.getElementById('v-emoji').innerText = "⏳";
-          return;
-        }
-        const d = list[vIndex];
-        document.getElementById('v-cat-badge').innerText = d.category;
-        document.getElementById('v-emoji').innerText = d.emoji;
-        document.getElementById('v-en').innerText = d.en;
-        document.getElementById('v-sw').innerText = d.sw;
-        document.getElementById('v-ja').innerText = d.ja;
+         const list = vocabularyData.filter(d => d.level === currentLevel);
+         if(list.length === 0) return;
+         const d = list[vIndex];
+         document.getElementById('v-lvl-badge').innerText = currentLevel;
+         document.getElementById('v-cat-badge').innerText = d.category;
+         document.getElementById('v-emoji').innerText = d.emoji;
+         document.getElementById('v-sw').innerText = d.sw;
+         document.getElementById('v-en').innerText = d.en;
+         document.getElementById('v-ja').innerText = d.ja;
       }
-      
+
       function changeWord(step) {
-        const list = vocabularyData.filter(d => d.level === currentLevel);
-        if(list.length === 0) return;
-        vIndex = (vIndex + step + list.length) % list.length;
-        updateWord();
+         const list = vocabularyData.filter(d => d.level === currentLevel);
+         vIndex = (vIndex + step + list.length) % list.length;
+         updateWord();
       }
-      
+
+      function renderGrammar() {
+         const area = document.getElementById('grammar-list');
+         area.innerHTML = '';
+         document.getElementById('g-lvl-badge').innerText = currentLevel;
+
+         grammarData.filter(d => d.level === currentLevel).forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `
+               <div style="font-size:0.9rem; font-weight:bold; color:var(--secondary-color); margin-bottom:10px;">${item.title}</div>
+               <div class="lang-row">
+                  <div class="lang-label">Kiswahili</div>
+                  <div class="lang-text"><span id="g-sw-${i}">${item.sw_phrase}</span><button class="btn-speak" onclick="speakGrammar('g-sw-${i}','sw')">🔊</button></div>
+               </div>
+               <div class="lang-row">
+                  <div class="lang-label">English</div>
+                  <div class="lang-text"><span id="g-en-${i}">${item.en_phrase}</span><button class="btn-speak" onclick="speakGrammar('g-en-${i}','en')">🔊</button></div>
+               </div>
+               <div class="lang-row">
+                  <div class="lang-label">日本語</div>
+                  <div class="lang-text"><span id="g-ja-${i}">${item.ja_trans}</span><button class="btn-speak" onclick="speakGrammar('g-ja-${i}','ja')">🔊</button></div>
+               </div>
+               <div style="font-size:0.9rem; margin-top:10px; color:#555;">${item.ja_explanation}</div>
+            `;
+            area.appendChild(div);
+         });
+      }
+
       function speak(lang) {
-      const textEl = document.getElementById('v-' + lang);
-      if (!textEl) return;
-      const text = textEl.innerText;
-      if (text === "-" || text.includes("Preparing")) return;
-      
-      // 強制キャンセル
-      window.speechSynthesis.cancel();
-      
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
-      
-      // --- 【ここが魔法の1行】 ---
-      // 日本語の時だけ、ほんの少しだけ設定をいじる（これで二重化が解けることが多いです）
-      if (lang === 'ja') {
-        u.pitch = 1.0; // 声の高さ（標準）
-        u.rate = 0.95; // ほんの少しだけゆっくりにする（1.0が標準）
+         const text = document.getElementById('v-' + lang).innerText;
+         window.speechSynthesis.cancel();
+         const u = new SpeechSynthesisUtterance(text);
+         u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
+         window.speechSynthesis.speak(u);
       }
-      
-      window.speechSynthesis.speak(u);
-      }
-      // --- 文法リストを生成する命令 (絵文字の読み上げ防止版) ---
-      function showGrammarList() {
-        const listArea = document.getElementById('grammar-list');
-        if(!listArea) return;
-      
-        const list = grammarData.filter(d => d.level === currentLevel);
-        listArea.innerHTML = ''; 
-      
-        if(list.length === 0) {
-          listArea.innerHTML = '<p class="text-center p-8 text-gray-500">準備中です...</p>';
-          return;
-        }
-      
-        list.forEach((item, idx) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.textAlign = 'left';
-          card.style.marginBottom = '20px';
-          card.style.borderLeft = '6px solid var(--secondary-color)';
-      
-          card.innerHTML = `
-            <div style="font-size: 0.8rem; color: var(--primary-color); font-weight: bold; margin-bottom: 8px; opacity: 0.7;">
-              ${item.title}
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-              <div style="font-size: 1.3rem; font-weight: bold; color: #333; flex: 1;">
-                <span id="g-sw-${idx}">${item.sw_phrase || "---"}</span>
-              </div>
-              <button class="btn-speak" onclick="speakGrammar('g-sw-${idx}', 'sw')">🔊</button>
-            </div>
-      
-            <div style="border-top: 1px dashed #ddd; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="color: #555; font-size: 0.95rem;">
-                  🇺🇸 <span id="g-en-${idx}">${item.en_phrase || "---"}</span>
-                </div>
-                <button class="btn-speak" onclick="speakGrammar('g-en-${idx}', 'en')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
-              </div>
-              
-              <div style="color: #444; font-size: 0.95rem; line-height: 1.5; margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                  <div style="flex: 1;">
-                    <span>🇯🇵</span> 
-                    <strong id="g-ja-${idx}" style="color: #d97706;">${item.ja_trans || "---"}</strong>
-                  </div>
-                  <button class="btn-speak" onclick="speakGrammar('g-ja-${idx}', 'ja')" style="font-size: 0.8rem; padding: 2px 6px;">🔊</button>
-                </div>
-                <span style="font-size: 0.85rem; color: #666; display: block;">${item.ja_explanation || item.content || ""}</span>
-              </div>
-            </div>
-          `;
-          listArea.appendChild(card);
-        });
-      }
-      // 文法専用の音声読み上げ関数 (この関数が抜けていたため音が出ませんでした)
-      function speakGrammar(elementId, lang) {
-        const el = document.getElementById(elementId);
-        if(!el || el.innerText === "---") return;
-        
-        const u = new SpeechSynthesisUtterance(el.innerText);
-        
-        // 言語の設定
-        if(lang === 'en') {
-          u.lang = 'en-US';
-        } else if(lang === 'ja') {
-          u.lang = 'ja-JP';
-        } else {
-          u.lang = 'sw-KE'; // スワヒリ語
-        }
-        
-        window.speechSynthesis.speak(u);
+
+      function speakGrammar(id, lang) {
+         const text = document.getElementById(id).innerText;
+         window.speechSynthesis.cancel();
+         const u = new SpeechSynthesisUtterance(text);
+         u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
+         window.speechSynthesis.speak(u);
       }
    </script>
 </body>
