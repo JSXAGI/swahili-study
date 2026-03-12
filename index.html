@@ -143,9 +143,9 @@
          <div class="card text-center">
             <h2>1. Level / レベル選択</h2>
             <div class="level-selector">
-               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級<br>小3~</button>
-               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級<br>中学</button>
-               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級<br>高校~</button>
+               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級 Beginner<br>Elementary School</button>
+               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級 Intermediate<br>Junior Hight School</button>
+               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級 Advanced<br>Hight School or Above</button>
             </div>
          </div>
          <div class="card text-center">
@@ -181,16 +181,21 @@
       </div>
 
       <div id="grammar-choice-view" class="hidden">
-         <div class="card text-center">
-            <h2>文法レベルを選んでください</h2>
-            <div style="display: grid; gap: 10px; margin-top: 20px;">
-               <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">初級文法</button>
-               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="setLevel('Intermediate'); showView('grammar')">中級文法</button>
-               <button class="btn btn-primary" style="background-color: var(--accent-color);" onclick="setLevel('Advanced'); showView('grammar')">上級文法</button>
-               <button class="btn" style="background: #e2e8f0; margin-top: 10px;" onclick="showView('home')">戻る</button>
-            </div>
-         </div>
-      </div>
+    <div class="card text-center">
+        <h2 style="margin-bottom: 5px;">文法レベルを選んでください</h2>
+        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 20px;">Select your grammar level</div>
+
+        <div style="display: grid; gap: 10px;">
+            <button class="btn btn-primary" onclick="setLevel('Beginner'); showView('grammar')">Beginner 初級文法</button>
+            
+            <button class="btn" style="background-color: var(--accent-color); color: white;" onclick="setLevel('Intermediate'); showView('grammar')">Intermediate 中級文法</button>
+            
+            <button class="btn" style="background-color: var(--secondary-color); color: white;" onclick="setLevel('Advanced'); showView('grammar')">Advanced 上級文法</button>
+        </div>
+        
+        <button class="btn" style="margin-top: 20px; background: #e2e8f0;" onclick="showView('home')">戻る / Back</button>
+    </div>
+</div>
 
       <div id="grammar-view" class="hidden">
          <div class="text-center" style="margin-bottom: 15px;">
