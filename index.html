@@ -90,11 +90,13 @@
           gap: 6px !important; 
         }
         .btn-lvl { 
+          width: auto !important; 
           height: auto !important; 
           min-height: 44px !important; 
           padding: 8px !important;
           font-size: 1.1rem !important; 
         }
+		
         #home-view .btn-primary {
           width: 48% !important;
           height: 75px !important;
@@ -177,6 +179,7 @@
                <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
                <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
             </div>
+			<button class="btn" style="width: 90%; margin: 10px auto; padding: 8px; font-size: 14px; background: #ff9800; color: white; display: block;" onclick="shuffleVocab()">🔀 Shuffle / ランダム</button>
          </div>
       </div>
 
@@ -209,7 +212,7 @@
       </div>
    </main>
    
-<div id="game-container" style="text-align: center; padding: 10px; border: 2px solid #555; border-radius: 10px; background-color: #f9f9f9; margin: 15px auto; width: 90%; max-width: 600px; font-size: 14px; box-sizing: border-box;">
+<div id="game-container" style="text-align: center; padding: 10px; border: 2px solid #555; border-radius: 10px; background-color: #f9f9f9; margin: 15px auto; width: 95%; max-width: 600px; font-size: 14px; box-sizing: border-box;">
     <h3 style="margin: 5px 0;">🦁 スワヒリ・クエスト</h3>
     
     <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 8px;">
@@ -671,6 +674,30 @@ function checkAnswer(selected, correct) {
     }
 }
 
+function useHint() {
+    if (!canUseHint) return; // すでに使っていたら何もしない
+
+    // 今の問題のスワヒリ語（答え）を一時的に取得
+    const originalContent = document.getElementById('question-area').innerHTML;
+    
+    // ヒント：答えを一瞬だけ表示する
+    document.getElementById('question-area').innerHTML = `
+        <div style="color: #ff9800; font-weight: bold; font-size: 16px;">
+            💡 答えは: ${currentCorrectAnswer}
+        </div>
+    `;
+
+    // 1.5秒後に元の表示（問題文）に戻す
+    setTimeout(() => {
+        document.getElementById('question-area').innerHTML = originalContent;
+    }, 1500);
+
+    // ヒントの使用権を消費
+    canUseHint = false;
+    document.getElementById('hint-btn').disabled = true;
+    document.getElementById('hint-btn').style.opacity = "0.5";
+    document.getElementById('hint-count').innerText = "0";
+}
 function updateRank() {
     let rankName = "駆け出し";
     if (currentScore >= 50) rankName = "案内人";
@@ -790,6 +817,22 @@ function updateRank() {
          u.lang = (lang==='en')?'en-US':(lang==='ja')?'ja-JP':'sw-KE';
          window.speechSynthesis.speak(u);
       }
+	  function shuffleVocab() {
+    // 1. 全体の単語データをバラバラに混ぜる
+    vocabularyData.sort(() => Math.random() - 0.5);
+    
+    // 2. 最初の単語（0番目）に戻す
+    currentVocabIndex = 0;
+    
+    // 3. 画面を更新する（既存の updateWord 関数を呼び出す）
+    updateWord();
+    
+    // おまけ：混ぜたことが分かるように一瞬だけメッセージを出す
+    const swElement = document.getElementById('v-sw');
+    const originalText = swElement.innerText;
+    swElement.innerText = "混ぜました！ 🔀";
+    setTimeout(() => { updateWord(); }, 800);
+}
    </script>
 </body>
 </html>
