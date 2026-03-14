@@ -1,0 +1,63 @@
+
+＜＜保存版＞＞
+【データ抽出コマンドプロンプト】
+①同じフォルダに、「index.html」「convert.py」　の二つのファイルを入れる。
+②入れたフォルダのアドレスをクリック。そこに半角で「cmd」と打ち、Enter！
+③コマンドプロンプトが立ち上がる
+④以下のメモを、上から順にコマンドプロンプト打つ。
+　pip install pandas openpyxl
+　py -m pip install pandas openpyxl
+　where python
+　python -m pip install pandas openpyxl
+　py convert.py
+
+
+---------------------------
+Microsoft Windows [Version 10.0.22631.6199]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>pip install pandas openpyxl
+Requirement already satisfied: pandas in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.0.0)
+Requirement already satisfied: openpyxl in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.1.5)
+Requirement already satisfied: numpy>=2.3.3 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.4.1)
+Requirement already satisfied: python-dateutil>=2.8.2 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: tzdata in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2025.3)
+Requirement already satisfied: et-xmlfile in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from openpyxl) (2.0.0)
+Requirement already satisfied: six>=1.5 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 26.0 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>py -m pip install pandas openpyxl
+Requirement already satisfied: pandas in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.0.0)
+Requirement already satisfied: openpyxl in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.1.5)
+Requirement already satisfied: numpy>=2.3.3 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.4.1)
+Requirement already satisfied: python-dateutil>=2.8.2 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: tzdata in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2025.3)
+Requirement already satisfied: et-xmlfile in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from openpyxl) (2.0.0)
+Requirement already satisfied: six>=1.5 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 26.0 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>where python
+C:\Users\sunli\AppData\Local\Programs\Python\Python314\python.exe
+C:\Users\sunli\AppData\Local\Microsoft\WindowsApps\python.exe
+C:\Users\sunli\AppData\Local\Python\bin\python.exe
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>python -m pip install pandas openpyxl
+Requirement already satisfied: pandas in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.0.0)
+Requirement already satisfied: openpyxl in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (3.1.5)
+Requirement already satisfied: numpy>=2.3.3 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.4.1)
+Requirement already satisfied: python-dateutil>=2.8.2 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: tzdata in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from pandas) (2025.3)
+Requirement already satisfied: et-xmlfile in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from openpyxl) (2.0.0)
+Requirement already satisfied: six>=1.5 in C:\Users\sunli\AppData\Local\Programs\Python\Python314\Lib\site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 26.0 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>py convert.py
+成功しました！ スワヒリ語学習データ.xlsx を作成しました。
+
+C:\Users\sunli\OneDrive\Desktop\GItHUbサイトエータ\GitHubSwahil\ 新しいフォルダー>
