@@ -795,7 +795,14 @@ function updateRank() {
                   <div class="lang-label">日本語</div>
                   <div class="lang-text"><span id="g-ja-${i}">${item.ja_trans}</span><button class="btn-speak" onclick="speakGrammar('g-ja-${i}','ja')">🔊</button></div>
                </div>
-               <div style="font-size:0.9rem; margin-top:10px; color:#555;">${item.ja_explanation}</div>
+               <details style="margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 5px;">
+   <summary style="font-size: 0.8rem; color: var(--secondary-color); cursor: pointer; font-weight: bold;">
+      💡 Japanese Explanation (Click to show)
+   </summary>
+   <div style="font-size: 0.85rem; margin-top: 8px; color: #555; line-height: 1.4; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 5px;">
+      ${item.ja_explanation}
+   </div>
+</details>
             `;
             area.appendChild(div);
          });
