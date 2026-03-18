@@ -133,28 +133,27 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
-   <header class="app-header">
-      <button class="home-link" onclick="showView('home')">
-      🏠
-      </button>
-      <div style="flex-grow: 1; text-align: center; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: bold; font-size: 2rem;" id="mode-title">スワヒリ語学習</div>
-   </header>
+<header class="app-header">
+  <button class="home-link" onclick="showView('home')">🏠</button>
+  <div style="flex-grow: 1; text-align: center; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: bold; font-size: 2rem;" id="mode-title">スワヒリ語学習</div>
+  <a href="en.html" style="position: absolute; right: 15px; background: rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; border: 1px solid white;">EN Mode</a>
+</header>
 
    <main class="main-content">
       <div id="home-view">
          <div class="card text-center">
-            <h2>1. Level / レベル選択</h2>
+            <h2>1. レベル選択</h2>
             <div class="level-selector">
-               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級 Beginner<br>Kids / Basic</button>
-               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級 Intermediate<br>Junior High</button>
-               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級 Advanced<br>Senior High+</button>
+               <button class="btn-lvl active" id="lvl-Beginner" onclick="setLevel('Beginner')">初級<br>キッズ・基本単語</button>
+               <button class="btn-lvl" id="lvl-Intermediate" onclick="setLevel('Intermediate')">中級<br>日常会話・中学レベル</button>
+               <button class="btn-lvl" id="lvl-Advanced" onclick="setLevel('Advanced')">上級<br>応用・高校以上</button>
             </div>
          </div>
          <div class="card text-center">
-            <h2>2. Activity / 学習内容</h2>
+            <h2>2. 学習内容を選ぶ</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-               <button class="btn btn-primary" onclick="showView('vocabulary')">📚 Words<br>単語</button>
-               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ Grammar<br>文法</button>
+               <button class="btn btn-primary" onclick="showView('vocabulary')">📚 単語カード</button>
+               <button class="btn btn-primary" style="background-color: var(--secondary-color);" onclick="showView('grammar-choice')">✏️ スワヒリ語文法</button>
             </div>
          </div>
       </div>
@@ -179,7 +178,7 @@
                <button class="btn" style="background: #e2e8f0;" onclick="changeWord(-1)">◀ BACK</button>
                <button class="btn btn-primary" onclick="changeWord(1)">NEXT ▶</button>
             </div>
-			<button class="btn" style="width: 90%; margin: 10px auto; padding: 8px; font-size: 14px; background: #ff9800; color: white; display: block;" onclick="shuffleVocab()">🔀 Shuffle / ランダム</button>
+			<button class="btn" style="width: 90%; margin: 10px auto; padding: 8px; font-size: 14px; background: #ff9800; color: white; display: block;" onclick="shuffleVocab()">🔀 単語をシャッフル</button>
          </div>
       </div>
 
@@ -196,7 +195,7 @@
             <button class="btn" style="background-color: var(--secondary-color); color: white;" onclick="setLevel('Advanced'); showView('grammar')">Advanced 上級文法</button>
         </div>
         
-        <button class="btn" style="margin-top: 20px; background: #e2e8f0;" onclick="showView('home')">戻る / Back</button>
+        <button class="btn" style="margin-top: 20px; background: #e2e8f0;" onclick="showView('home')">戻る</button>
     </div>
 </div>
 
