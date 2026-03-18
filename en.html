@@ -135,7 +135,7 @@
 <body>
 <header class="app-header">
   <button class="home-link" onclick="showView('home')">🏠</button>
-  <div style="flex-grow: 1; text-align: center; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: bold; font-size: 2rem;" id="mode-title">Learn Swahili</div>
+  <div style="flex-grow: 1; text-align: center; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: bold; font-size: 1.5rem;" id="mode-title">Learn Swahili</div>
   <a href="index.html" style="position: absolute; right: 15px; background: rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 20px; text-decoration: none; font-size: 0.8rem; border: 1px solid white;">JP Mode</a>
 </header>
 
@@ -625,11 +625,11 @@ function nextQuestion() {
     const question = targetData[randomIndex];
     currentCorrectAnswer = question.sw;
     
-    let comboText = comboCount > 0 ? `<div style="color: #ff5722; font-size: 14px; font-weight: bold;">🔥 ${comboCount} JAMBO!</div>` : "";
+   let comboText = comboCount > 0 ? `<div style="color: #ff5722; font-size: 14px; font-weight: bold;">🔥 ${comboCount} JAMBO!</div>` : "";
     document.getElementById('question-area').innerHTML = `
         <div style="font-size: 12px; color: #666;">Level: ${currentLevel}</div>
         ${comboText}
-        スワヒリ語で <b>「${question.ja}」</b> は？
+        How do you say <b>"${question.en}"</b> in Swahili?
     `;
 
     const choices = [question.sw];
@@ -666,11 +666,12 @@ function checkAnswer(selected, correct) {
         updateRank();
         setTimeout(nextQuestion, 600);
     } else {
-        document.getElementById('game-container').style.backgroundColor = "#f8d7da"; 
-        document.getElementById('question-area').innerHTML = `😢 正解は <b>${correct}</b>`;
-        comboCount = 0;
-        setTimeout(nextQuestion, 1500);
-    }
+    document.getElementById('game-container').style.backgroundColor = "#f8d7da"; 
+    // 「正解は」を「The answer is」に変更
+    document.getElementById('question-area').innerHTML = `😢 The answer is <b>${correct}</b>`;
+    comboCount = 0;
+    setTimeout(nextQuestion, 1500);
+}
 }
 
 function useHint() {
@@ -679,12 +680,12 @@ function useHint() {
     // 今の問題のスワヒリ語（答え）を一時的に取得
     const originalContent = document.getElementById('question-area').innerHTML;
     
-    // ヒント：答えを一瞬だけ表示する
-    document.getElementById('question-area').innerHTML = `
-        <div style="color: #ff9800; font-weight: bold; font-size: 16px;">
-            💡 答えは: ${currentCorrectAnswer}
-        </div>
-    `;
+   // ヒント：答えを一瞬だけ表示する
+document.getElementById('question-area').innerHTML = `
+    <div style="color: #ff9800; font-weight: bold; font-size: 16px;">
+        💡 Answer is: ${currentCorrectAnswer}
+    </div>
+`;
 
     // 1.5秒後に元の表示（問題文）に戻す
     setTimeout(() => {
