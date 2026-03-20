@@ -140,6 +140,9 @@
 </header>
 
    <main class="main-content">
+   <div id="daily-jambo-container" style="margin : 0px 0 15px 0;">
+</div>
+    </div>
       <div id="home-view">
          <div class="card text-center">
             <h2>1. レベル選択</h2>
@@ -832,6 +835,20 @@ function updateRank() {
     swElement.innerText = "混ぜました！ 🔀";
     setTimeout(() => { updateWord(); }, 800);
 }
+
+function displayDailyJambo() {
+    const randomItem = grammarData[Math.floor(Math.random() * grammarData.length)];
+    const container = document.getElementById('daily-jambo-container');
+    container.innerHTML = `
+        <div style="background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; border: 2px solid #f59e0b; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <div style="font-size: 0.8rem; color: #f59e0b; font-weight: bold;">💡 今日の一言</div>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 5px 0;">${randomItem.sw_phrase}</div>
+            <div style="font-size: 1rem; color: #666;">${randomItem.ja_trans}</div>
+        </div>
+    `;
+}
+// 既存の window.onload の中か、末尾に追記
+displayDailyJambo();
    </script>
 </body>
 </html>
