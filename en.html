@@ -855,14 +855,23 @@ function renderGrammar() {
 function displayDailyJambo() {
     const randomItem = grammarData[Math.floor(Math.random() * grammarData.length)];
     const container = document.getElementById('daily-jambo-container');
+    
+    // 他のIDと重ならないように名前を付けます
+    const dId = "daily-jambo-text";
+
     container.innerHTML = `
         <div style="background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; border: 2px solid #f59e0b; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <div style="font-size: 0.8rem; color: #f59e0b; font-weight: bold; text-transform: uppercase;">💡 Jambo of the Day</div>
-            <div style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 5px 0;">${randomItem.sw_phrase}</div>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 5px 0; display: flex; align-items: center; justify-content: space-between;">
+                <span id="${dId}">${randomItem.sw_phrase}</span>
+                <button class="btn-speak" onclick="speakGrammar('${dId}','sw')" title="Listen (Swahili)" style="margin-left:8px; flex-shrink: 0;">🔊</button>
+            </div>
             <div style="font-size: 1rem; color: #666;">${randomItem.en_phrase}</div>
         </div>
     `;
 }
+
+// これを忘れずに！
 displayDailyJambo();
    </script>
 </body>
