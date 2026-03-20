@@ -140,6 +140,8 @@
 </header>
 
    <main class="main-content">
+   <div id="daily-jambo-container" style="margin : 0px 0 15px 0;">
+    </div>
       <div id="home-view">
          <div class="card text-center">
             <h2>1. Select Your Level</h2>
@@ -164,7 +166,7 @@
             <div id="v-emoji" style="font-size: 5rem; margin: 0px 0;"></div>
             <div class="lang-row">
                <div class="lang-label">Kiswahili</div>
-               <div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')">🔊</button></div>
+               <div class="lang-text"><span id="v-sw"></span><button class="btn-speak" onclick="speak('sw')" title="Listen (Swahili)" style="margin-left: 10px; vertical-align: middle;">🔊</button></div>
             </div>
             <div class="lang-row">
                <div class="lang-label">English</div>
@@ -774,39 +776,48 @@ function updateRank() {
          updateWord();
       }
 
-      function renderGrammar() {
-         const area = document.getElementById('grammar-list');
-         area.innerHTML = '';
-         document.getElementById('g-lvl-badge').innerText = currentLevel;
+function renderGrammar() {
+          const area = document.getElementById('grammar-list');
+          area.innerHTML = '';
+          document.getElementById('g-lvl-badge').innerText = currentLevel;
 
-         grammarData.filter(d => d.level === currentLevel).forEach((item, i) => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = `
-               <div style="font-size:0.9rem; font-weight:bold; color:var(--secondary-color); margin-bottom:10px;">${item.title}</div>
-               <div class="lang-row">
-                  <div class="lang-label">Kiswahili</div>
-                  <div class="lang-text"><span id="g-sw-${i}">${item.sw_phrase}</span><button class="btn-speak" onclick="speakGrammar('g-sw-${i}','sw')">🔊</button></div>
-               </div>
-               <div class="lang-row">
-                  <div class="lang-label">English</div>
-                  <div class="lang-text"><span id="g-en-${i}">${item.en_phrase}</span><button class="btn-speak" onclick="speakGrammar('g-en-${i}','en')">🔊</button></div>
-               </div>
-               <div class="lang-row">
-                  <div class="lang-label">日本語</div>
-                  <div class="lang-text"><span id="g-ja-${i}">${item.ja_trans}</span><button class="btn-speak" onclick="speakGrammar('g-ja-${i}','ja')">🔊</button></div>
-               </div>
-               <details style="margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 5px;">
-   <summary style="font-size: 0.8rem; color: var(--secondary-color); cursor: pointer; font-weight: bold;">
-      💡 Japanese Explanation (Click to show)
-   </summary>
-   <div style="font-size: 0.85rem; margin-top: 8px; color: #555; line-height: 1.4; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 5px;">
-      ${item.ja_explanation}
-   </div>
-</details>
-            `;
-            area.appendChild(div);
-         });
+          grammarData.filter(d => d.level === currentLevel).forEach((item, i) => {
+             const div = document.createElement('div');
+             div.className = 'card';
+             div.innerHTML = `
+                <div style="font-size:0.9rem; font-weight:bold; color:var(--secondary-color); margin-bottom:10px;">${item.title}</div>
+                <div class="lang-row">
+                   <div class="lang-label">Kiswahili</div>
+                   <div class="lang-text">
+                      <span id="g-sw-${i}">${item.sw_phrase}</span>
+                      <button class="btn-speak" onclick="speakGrammar('g-sw-${i}','sw')" title="Listen (Swahili)">🔊</button>
+                   </div>
+                </div>
+                <div class="lang-row">
+                   <div class="lang-label">English</div>
+                   <div class="lang-text">
+                      <span id="g-en-${i}">${item.en_phrase}</span>
+                      <button class="btn-speak" onclick="speakGrammar('g-en-${i}','en')" title="Listen (English)">🔊</button>
+                   </div>
+                </div>
+                <div class="lang-row">
+                   <div class="lang-label">日本語</div>
+                   <div class="lang-text">
+                      <span id="g-ja-${i}">${item.ja_trans}</span>
+                      <button class="btn-speak" onclick="speakGrammar('g-ja-${i}','ja')" title="Listen (Japanese)">🔊</button>
+                   </div>
+                </div>
+                <details style="margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 5px;">
+                   <summary style="font-size: 0.8rem; color: var(--secondary-color); cursor: pointer; font-weight: bold;">
+                      💡 Japanese Explanation (Click to show)
+                   </summary>
+                   <div style="font-size: 0.85rem; margin-top: 8px; color: #555; line-height: 1.4; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 5px;">
+                      ${item.ja_explanation}
+                   </div>
+                </details>
+             `;
+             area.appendChild(div);
+          });
       }
 
       function speak(lang) {
@@ -840,6 +851,19 @@ function updateRank() {
     swElement.innerText = "Shuffled! 🔀";
     setTimeout(() => { updateWord(); }, 800);
 }
+
+function displayDailyJambo() {
+    const randomItem = grammarData[Math.floor(Math.random() * grammarData.length)];
+    const container = document.getElementById('daily-jambo-container');
+    container.innerHTML = `
+        <div style="background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; border: 2px solid #f59e0b; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <div style="font-size: 0.8rem; color: #f59e0b; font-weight: bold; text-transform: uppercase;">💡 Jambo of the Day</div>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #333; margin: 5px 0;">${randomItem.sw_phrase}</div>
+            <div style="font-size: 1rem; color: #666;">${randomItem.en_phrase}</div>
+        </div>
+    `;
+}
+displayDailyJambo();
    </script>
 </body>
 </html>
