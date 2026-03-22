@@ -1,35 +1,45 @@
-🌍 スワヒリ語学習アプリ：全ての始まり・AIたちとの共闘
-「ネット環境のないタンザニアの子どもたちに、スマホで学びを届けたい」
+# 🌍 スワヒリ語学習アプリ：全ての始まり・AIたちとの共闘
 
-ここにあるのは、私がAndroid Studioでスマホアプリ（APK）を完成させるための『心臓部』となったWebアプリのソースコードです。
+> **「ネット環境のないタンザニアの子どもたちに、スマホで学びを届けたい」**
+> 
+> ここにあるのは、私がAndroid Studioでスマホアプリ（APK）を完成させるための『心臓部』となったWebアプリのソースコードです。
 
-📖 開発の背景 (The Story)
+## 📖 開発の背景 (The Story)
+
 全ては「Canvaのコードをキオスクで動かしたい」という夢から始まりました。Claude 3.5 Sonnetで基盤を築き、ChatGPTと共にローカルサーバーとPythonの迷宮を抜け、5時間に及ぶ対話の末に学習キオスクが立ち上がりました。
 
 しかし、オフライン環境でのレイアウト崩れという大きな壁。ChatGPTの利用制限中、手を差し伸べてくれたのがGeminiでした。彼との2時間にわたる激闘の末、ついに「英語・スワヒリ語学習キオスク」が完成。
 
 「Website 2 APK Builder」や「Android Studio」という未知の世界へ飛び込み、最初のアプリアイコンまで作り上げた、私の開発者としての原点であり、記念すべき第一作です。
 
-🛠️ Customize & Build for Your Mission (あなたのミッションのために)
+---
+
+## 🛠️ Customize & Build for Your Mission (あなたのミッションのために)
+
 このコードは、オフライン環境での動作にこだわった「学習ツールの種」です。あなたの手で、さらに多くの場所へ学びを届けるために活用してください。
 
-言語のローカライズ:
-スワヒリ語の部分を他の言語（例：フランス語、ヒンディー語、あるいは現地の部族語など）に書き換えることで、世界中のあらゆる地域に適した学習アプリに生まれ変わります。
+- **言語のローカライズ**:
+  スワヒリ語の部分を他の言語（例：フランス語、ヒンディー語、あるいは現地の部族語など）に書き換えることで、世界中のあらゆる地域に適した学習アプリに生まれ変わります。
 
-オフライン・ファーストの継承:
-このコードの設計思想（オフラインでの堅牢性）を活かし、通信環境が不安定な地域で動く独自のツールを構築できます。
+- **オフライン・ファーストの継承**:
+  このコードの設計思想（オフラインでの堅牢性）を活かし、通信環境が不安定な地域で動く独自のツールを構築できます。
 
-APK化へのベースとして:
-「Android Studio」や「Website 2 APK Builder」を使えば、このコードをそのままAndroidアプリとしてパッケージング可能です。
+- **APK化へのベースとして**:
+  「Android Studio」や「Website 2 APK Builder」を使えば、このコードをそのままAndroidアプリとしてパッケージング可能です。
 
-[!IMPORTANT]
-このリポジトリを Fork し、あなたが必要とする言語や機能を追加して、新しい教育の形を作ってみてください。コードの改変や再配布は自由です。
+> [!IMPORTANT]
+> このリポジトリを **Fork** し、あなたが必要とする言語や機能を追加して、新しい教育の形を作ってみてください。コードの改変や再配布は自由です。
 
-🚀 技術構成 (Stack)
-Foundation: Claude 3.5 Sonnet & ChatGPT
+---
 
-Design & Layout Fix: Gemini
+## 🚀 技術構成 (Stack)
 
-Concept: Offline-ready Education for Tanzania
+- **Foundation**: Claude 3.5 Sonnet & ChatGPT
 
-Created with passion, AI collaboration, and a vision for the future of education.
+- **Design & Layout Fix**: Gemini
+
+- **Concept**: Offline-ready Education for Tanzania
+
+---
+
+*Created with passion, AI collaboration, and a vision for the future of education.*
