@@ -4,6 +4,19 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>スワヒリ語学習</title>
+   <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('スワヒリ語PWA準備完了！', reg))
+        .catch(err => console.log('PWA登録失敗', err));
+    });
+  }
+</script>
 <style>
     :root {
       --bg-image: url('https://raw.githubusercontent.com/JSXAGI/swahili-study/main/swahili.jpg');
